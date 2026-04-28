@@ -1,0 +1,17 @@
+---
+description: Central project rules (gatekeeper expects this file)
+alwaysApply: false
+---
+
+# CarTrack - Central Rules Index
+
+This file exists because the project requires a central `rules.mdc` to be present before work can proceed.
+
+## Mandatory components (must exist)
+
+- `.cursor/rules/file-size-enforcement.mdc`
+- `.cursor/rules/clean-code-standards.mdc`
+
+## Notes
+
+- If a rule conflicts with higher-priority system/developer instructions, higher-priority instructions win.

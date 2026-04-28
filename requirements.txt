@@ -1,0 +1,7 @@
+Django==4.2.7
+Pillow==10.1.0
+openpyxl==3.1.5
+pypdf==6.9.2
+reportlab==4.4.10
+waitress==3.0.2
+

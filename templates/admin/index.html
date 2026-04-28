@@ -1,0 +1,202 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_dashboard %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  .ops-dashboard { margin-bottom: 18px; }
+  .ops-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .ops-card {
+    background: #fff;
+    border: 1px solid #d9e3f6;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .ops-card .ops-label { font-size: 12px; color: #5b6b88; margin-bottom: 6px; }
+  .ops-card .ops-value { font-size: 26px; font-weight: 700; color: #0f1f45; line-height: 1; }
+  .ops-card .ops-help { margin-top: 6px; font-size: 11px; color: #6b7a96; }
+  .ops-bottom { display: block; }
+  .ops-chart-card { margin-bottom: 12px; }
+  .ops-chart-wrap { display: block; }
+  .ops-bar-chart { display: grid; gap: 9px; }
+  .ops-bar-row {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 56px;
+    gap: 10px;
+    align-items: center;
+  }
+  .ops-bar-label { font-size: 13px; color: #1a2a55; line-height: 1.25; }
+  .ops-bar-track {
+    width: 100%;
+    height: 14px;
+    background: #e9effc;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .ops-bar-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    transition: width 0.35s ease;
+  }
+  .ops-bar-value { text-align: right; font-size: 13px; font-weight: 700; color: #1f356e; }
+  .ops-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .ops-dot.inuse { background: #e35d5b; }
+  .ops-dot.reserved { background: #f2b84b; }
+  .ops-dot.pooltotal { background: #2f58a6; }
+  .ops-dot.poolout { background: #808aa0; }
+  .ops-dot.available { background: #00a67e; }
+  .ops-dot.total { background: #1d3f8b; }
+  .ops-risk-table { width: 100%; border-collapse: collapse; }
+  .ops-risk-table th, .ops-risk-table td { border-bottom: 1px solid #e3e9f7; padding: 8px 6px; font-size: 12px; text-align: left; }
+  .ops-risk-table th { color: #2b3f72; }
+  .ops-risk-badge { font-weight: 700; }
+  .ops-risk-badge.is-danger { color: #b62e2e; }
+  .ops-risk-badge.is-warn { color: #d08a16; }
+  .ops-empty { color: #5b6b88; font-size: 13px; padding: 8px 0; }
+  @media (max-width: 1200px) {
+    .ops-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ops-bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .ops-bar-value { text-align: left; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% get_dashboard_metrics as dashboard %}
+{% get_risk_vehicles 30 as risk_items %}
+
+<div class="ops-dashboard">
+  <div class="ops-grid">
+    <div class="ops-card ops-chart-card">
+      <div class="ops-label">Şu an kullanımda araç</div>
+      <div class="ops-value">{{ dashboard.active_usages }}</div>
+      <div class="ops-help">Aktif teslim edilmemiş kullanım</div>
+    </div>
+    <div class="ops-card">
+      <div class="ops-label">Teslim formu bekleyen</div>
+      <div class="ops-value">{{ dashboard.pending_handover }}</div>
+      <div class="ops-help">Bitişi geçmiş ama teslim edilmemiş</div>
+    </div>
+    <div class="ops-card">
+      <div class="ops-label">Bugün başlayacak rezervasyon</div>
+      <div class="ops-value">{{ dashboard.starting_today }}</div>
+      <div class="ops-help">Bugün için planlanmış rezervasyon</div>
+    </div>
+    <div class="ops-card">
+      <div class="ops-label">24 saat içinde bitecek</div>
+      <div class="ops-value">{{ dashboard.ending_next_24h }}</div>
+      <div class="ops-help">Önümüzdeki 24 saat</div>
+    </div>
+  </div>
+
+  <div class="ops-bottom">
+    <div class="ops-card">
+      <h2 style="margin:0 0 10px 0; font-size:14px; color:#17326f;">Araç Durum Dağılımı</h2>
+      <div class="ops-chart-wrap">
+        <div
+          id="opsBarChart"
+          class="ops-bar-chart"
+          data-total="{{ dashboard.pie.total }}"
+          data-pooltotal="{{ dashboard.pie.pool_total }}"
+          data-poolout="{{ dashboard.pie.pool_out_of_service }}"
+          data-available="{{ dashboard.pie.available }}"
+          data-inuse="{{ dashboard.pie.in_use|add:dashboard.pie.reserved }}"
+        >
+          <div class="ops-bar-row" data-key="total" data-color="#1d3f8b">
+            <div class="ops-bar-label">Toplam araç</div>
+            <div class="ops-bar-track"><div class="ops-bar-fill"></div></div>
+            <div class="ops-bar-value">0</div>
+          </div>
+          <div class="ops-bar-row" data-key="pooltotal" data-color="#2f58a6">
+            <div class="ops-bar-label">Havuz listesi toplam araç</div>
+            <div class="ops-bar-track"><div class="ops-bar-fill"></div></div>
+            <div class="ops-bar-value">0</div>
+          </div>
+          <div class="ops-bar-row" data-key="poolout" data-color="#808aa0">
+            <div class="ops-bar-label">Havuz listesinde görünür, kullanım dışı</div>
+            <div class="ops-bar-track"><div class="ops-bar-fill"></div></div>
+            <div class="ops-bar-value">0</div>
+          </div>
+          <div class="ops-bar-row" data-key="available" data-color="#00a67e">
+            <div class="ops-bar-label">Müsait</div>
+            <div class="ops-bar-track"><div class="ops-bar-fill"></div></div>
+            <div class="ops-bar-value">0</div>
+          </div>
+          <div class="ops-bar-row" data-key="inuse" data-color="#e35d5b">
+            <div class="ops-bar-label">Kullanımda/Rezerve</div>
+            <div class="ops-bar-track"><div class="ops-bar-fill"></div></div>
+            <div class="ops-bar-value">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ops-card">
+      <h2 style="margin:0 0 10px 0; font-size:14px; color:#17326f;">Risk Listesi (Kritik Gün Eşiği)</h2>
+      {% if risk_items %}
+      <table class="ops-risk-table">
+        <thead>
+          <tr>
+            <th>Plaka</th>
+            <th>Araç</th>
+            <th>Tip</th>
+            <th>Tarih</th>
+            <th>Kalan Gün</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in risk_items %}
+          <tr>
+            <td>{{ item.plate }}</td>
+            <td>{{ item.brand_model }}</td>
+            <td>{{ item.type_label }}</td>
+            <td>{{ item.target_date|date:"d.m.Y" }}</td>
+            <td>
+              <span class="ops-risk-badge {% if item.remaining_days <= 7 %}is-danger{% else %}is-warn{% endif %}">
+                {{ item.remaining_days }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="ops-empty">Kritik eşiğe yaklaşan kayıt yok.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var chart = document.getElementById('opsBarChart');
+    if (!chart) return;
+
+    var rows = chart.querySelectorAll('.ops-bar-row');
+    var values = [];
+    rows.forEach(function(row) {
+      var key = row.getAttribute('data-key');
+      values.push(parseInt(chart.dataset[key] || '0', 10));
+    });
+    var maxValue = Math.max.apply(null, values.concat([1]));
+
+    rows.forEach(function(row) {
+      var key = row.getAttribute('data-key');
+      var value = parseInt(chart.dataset[key] || '0', 10);
+      var color = row.getAttribute('data-color') || '#1d3f8b';
+      var fill = row.querySelector('.ops-bar-fill');
+      var valueNode = row.querySelector('.ops-bar-value');
+      var ratio = (value / maxValue) * 100;
+
+      if (fill) {
+        fill.style.width = ratio.toFixed(2) + '%';
+        fill.style.background = color;
+      }
+      if (valueNode) {
+        valueNode.textContent = String(value);
+      }
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  #changelist-form .results {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sticky-results-scrollbar {
+    position: fixed;
+    bottom: 10px;
+    height: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #ececec;
+    border-radius: 999px;
+    z-index: 9999;
+    box-shadow: 0 0 0 1px #d7d7d7 inset;
+    display: none;
+  }
+  .sticky-results-scrollbar-inner {
+    height: 1px;
+  }
+  .sticky-results-scrollbar::-webkit-scrollbar {
+    height: 10px;
+  }
+  .sticky-results-scrollbar::-webkit-scrollbar-thumb {
+    background: #b7b7b7;
+    border-radius: 999px;
+  }
+  .sticky-results-scrollbar::-webkit-scrollbar-track {
+    background: #ececec;
+    border-radius: 999px;
+  }
+  #changelist-form .results::-webkit-scrollbar {
+    height: 0;
+    display: none;
+  }
+  #result_list {
+    min-width: 1320px;
+  }
+  #result_list td.field-purpose_preview_display,
+  #result_list th.column-purpose_preview_display {
+    text-align: left;
+    white-space: nowrap;
+  }
+  body.purpose-modal-open #content-main {
+    filter: blur(2px);
+  }
+  .purpose-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 10000;
+    display: none;
+  }
+  .purpose-modal-overlay.is-open {
+    display: block;
+  }
+  .purpose-modal-card {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(720px, calc(100% - 24px));
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    z-index: 10001;
+    display: none;
+    padding: 16px;
+  }
+  .purpose-modal-card.is-open {
+    display: block;
+  }
+  .purpose-modal-title {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .purpose-modal-text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.45;
+  }
+  .purpose-modal-actions {
+    margin-top: 14px;
+    text-align: right;
+  }
+</style>
+<script>
+  (function() {
+    function initStickyHorizontalScrollbar() {
+      var results = document.querySelector('#changelist-form .results');
+      if (!results) return;
+
+      var sticky = document.getElementById('stickyResultsScrollbar');
+      if (!sticky) {
+        sticky = document.createElement('div');
+        sticky.id = 'stickyResultsScrollbar';
+        sticky.className = 'sticky-results-scrollbar';
+        sticky.innerHTML = '<div class="sticky-results-scrollbar-inner"></div>';
+        document.body.appendChild(sticky);
+      }
+
+      var stickyInner = sticky.querySelector('.sticky-results-scrollbar-inner');
+      var syncing = false;
+
+      function syncPositionAndWidth() {
+        var rect = results.getBoundingClientRect();
+        var left = Math.max(rect.left, 8);
+        var right = Math.min(rect.right, window.innerWidth - 8);
+        var width = Math.max(right - left, 0);
+        sticky.style.left = left + 'px';
+        sticky.style.width = width + 'px';
+        stickyInner.style.width = results.scrollWidth + 'px';
+        sticky.style.display = results.scrollWidth > results.clientWidth && width > 0 ? 'block' : 'none';
+      }
+
+      function syncFromResults() {
+        if (syncing) return;
+        syncing = true;
+        sticky.scrollLeft = results.scrollLeft;
+        syncing = false;
+      }
+
+      function syncFromSticky() {
+        if (syncing) return;
+        syncing = true;
+        results.scrollLeft = sticky.scrollLeft;
+        syncing = false;
+      }
+
+      results.addEventListener('scroll', syncFromResults);
+      sticky.addEventListener('scroll', syncFromSticky);
+      window.addEventListener('resize', syncPositionAndWidth);
+      window.addEventListener('scroll', syncPositionAndWidth, true);
+
+      syncPositionAndWidth();
+      syncFromResults();
+    }
+
+    function ensureModal() {
+      var overlay = document.getElementById('purposeModalOverlay');
+      var card = document.getElementById('purposeModalCard');
+      if (overlay && card) return { overlay: overlay, card: card };
+
+      overlay = document.createElement('div');
+      overlay.id = 'purposeModalOverlay';
+      overlay.className = 'purpose-modal-overlay';
+      document.body.appendChild(overlay);
+
+      card = document.createElement('div');
+      card.id = 'purposeModalCard';
+      card.className = 'purpose-modal-card';
+      card.innerHTML = '' +
+        '<h3 class="purpose-modal-title">Amaç</h3>' +
+        '<p class="purpose-modal-text" id="purposeModalText"></p>' +
+        '<div class="purpose-modal-actions"><button type="button" class="button" id="purposeModalCloseBtn">Kapat</button></div>';
+      document.body.appendChild(card);
+      return { overlay: overlay, card: card };
+    }
+
+    function openModal(text) {
+      var modal = ensureModal();
+      var textNode = document.getElementById('purposeModalText');
+      var closeBtn = document.getElementById('purposeModalCloseBtn');
+      textNode.textContent = text || '-';
+      modal.overlay.classList.add('is-open');
+      modal.card.classList.add('is-open');
+      document.body.classList.add('purpose-modal-open');
+
+      function close() {
+        modal.overlay.classList.remove('is-open');
+        modal.card.classList.remove('is-open');
+        document.body.classList.remove('purpose-modal-open');
+      }
+
+      modal.overlay.onclick = close;
+      closeBtn.onclick = close;
+      document.onkeydown = function(e) {
+        if (e.key === 'Escape') close();
+      };
+    }
+
+    document.addEventListener('click', function(e) {
+      var trigger = e.target.closest('.purpose-preview-trigger');
+      if (!trigger) return;
+      e.preventDefault();
+      openModal(trigger.getAttribute('data-purpose'));
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStickyHorizontalScrollbar);
+    } else {
+      initStickyHorizontalScrollbar();
+    }
+  })();
+</script>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+<a id="reservation-export-btn" href="{% url 'admin:vehicles_vehiclereservation_export' %}" style="
+    display: inline-block;
+    margin-left: 16px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid #1f8f4d;
+    background: #28a745;
+    color: #fff;
+    font-weight: 600;
+">Dışarı Aktar</a>
+<script>
+  (function() {
+    var button = document.getElementById('reservation-export-btn');
+    if (!button) return;
+    var search = window.location.search || '';
+    if (search) {
+      var exportUrl = new URL(button.href, window.location.origin);
+      var currentParams = new URLSearchParams(search);
+      currentParams.forEach(function(value, key) {
+        exportUrl.searchParams.set(key, value);
+      });
+      button.href = exportUrl.toString();
+    }
+    var actions = document.querySelector('#changelist-form .actions');
+    if (!actions) return;
+
+    actions.style.display = 'flex';
+    actions.style.alignItems = 'center';
+    actions.style.flexWrap = 'wrap';
+    button.style.marginLeft = 'auto';
+    button.style.marginRight = '8px';
+    button.style.order = '99';
+    actions.appendChild(button);
+  })();
+</script>
+{% endblock %}

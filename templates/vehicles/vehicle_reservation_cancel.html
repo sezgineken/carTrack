@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Rezervasyon İptal - Araç Havuzu Yönetim Sistemi{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div class="card">
+        <h2 style="margin-bottom: 1.5rem;">Rezervasyon İptal</h2>
+        
+        <div style="background-color: rgba(254,80,0,0.1); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid #fe5000;">
+            <p><strong>Araç:</strong> {{ reservation.vehicle.plate }} - {{ reservation.vehicle.brand_model }}</p>
+            <p><strong>Başlangıç:</strong> {{ reservation.start_time|date:"d.m.Y H:i" }}</p>
+            <p><strong>Bitiş:</strong> {{ reservation.end_time|date:"d.m.Y H:i" }}</p>
+            {% if reservation.purpose %}
+            <p><strong>Amaç:</strong> {{ reservation.purpose }}</p>
+            {% endif %}
+        </div>
+        
+        <p style="margin-bottom: 1.5rem;">Bu rezervasyonu iptal etmek istediğinizden emin misiniz?</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-danger">Evet, İptal Et</button>
+                <a href="{% url 'vehicle_list' %}" class="btn btn-secondary">Hayır, Geri Dön</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

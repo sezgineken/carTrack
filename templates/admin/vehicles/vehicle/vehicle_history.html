@@ -1,0 +1,460 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <style>
+    .vh-wrap { max-width: 1100px; }
+    .vh-header { margin-bottom: 18px; }
+    .vh-subtitle { color: var(--body-quiet-color, #666); }
+    .vh-tabs { display:flex; gap:10px; flex-wrap:wrap; border-bottom: 1px solid var(--hairline-color, #dcdcdc); padding-bottom: 12px; margin-bottom: 18px; }
+    .vh-tab { text-decoration:none; padding:10px 14px; border-radius:999px; font-weight:700; }
+    .vh-tab.is-active { background:#001489; color:#fff; }
+    .vh-tab:not(.is-active) { background:rgba(0,20,137,0.08); color:#001489; }
+
+    .vh-card { background: var(--body-bg, transparent); border: 1px solid var(--hairline-color, #dcdcdc); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .vh-card-title { margin: 0 0 12px 0; font-size: 14px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--body-quiet-color, #666); }
+    .vh-grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: 14px 18px; }
+    .vh-field { grid-column: span 6; min-width: 0; }
+    .vh-field--full { grid-column: 1 / -1; }
+    .vh-field--third { grid-column: span 4; }
+    .vh-field label { display:block; font-weight: 700; margin-bottom: 6px; }
+    .vh-readonly { padding: 10px 12px; border-radius: 8px; background: rgba(0,20,137,0.06); border: 1px solid rgba(0,20,137,0.14); }
+    .vh-inline { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+    .vh-kalan { min-width: 260px; }
+    .vh-kalan strong { font-size: 18px; }
+    .vh-doc-list { margin: 8px 0 0 0; padding: 0; list-style: none; }
+    .vh-doc-list li { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .vh-doc-delete-label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+    .vh-notes-layout { display: grid; grid-template-columns: minmax(0, 1fr) 140px; gap: 14px; align-items: start; }
+    .vh-notes-input { min-height: 120px; width: 100%; box-sizing: border-box; resize: vertical; }
+    .vh-notes-list {
+      min-height: 120px;
+      max-height: 280px;
+      overflow: auto;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(0,20,137,0.06);
+      border: 1px solid rgba(0,20,137,0.14);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .vh-notes-line { margin-bottom: 7px; }
+    .vh-notes-line:last-child { margin-bottom: 0; }
+    .vh-notes-actions { display: grid; gap: 10px; }
+    .vh-notes-actions .button {
+      text-align: center;
+      justify-content: center;
+      min-width: 120px;
+    }
+    .vh-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 1100;
+      display: none;
+    }
+    .vh-modal-overlay.is-open { display: block; }
+    .vh-modal-card {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(720px, calc(100% - 24px));
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #dcdcdc;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+      z-index: 1101;
+      display: none;
+      padding: 16px;
+    }
+    .vh-modal-card.is-open { display: block; }
+    .vh-modal-title { margin: 0 0 10px 0; font-size: 16px; font-weight: 700; }
+    .vh-modal-text { margin: 0; white-space: pre-wrap; word-break: break-word; line-height: 1.45; max-height: 52vh; overflow: auto; }
+    .vh-modal-actions { margin-top: 14px; text-align: right; }
+    .vh-main-actions input[type="submit"],
+    .vh-main-actions .button {
+      min-width: 110px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      text-align: center;
+      padding: 0 14px;
+    }
+    .vh-main-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vh-main-actions .button {
+      margin: 0;
+      line-height: 34px;
+    }
+    .vh-main-actions input[type="submit"] {
+      margin: 0;
+      line-height: 34px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 920px) {
+      .vh-wrap { max-width: 100%; }
+      .vh-field, .vh-field--third { grid-column: 1 / -1; }
+      .vh-notes-layout { grid-template-columns: 1fr; }
+      .vh-notes-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+
+  <div class="vh-wrap">
+  <div style="margin-bottom: 14px;">
+    <div class="vh-header">
+      <h1 style="margin: 0 0 8px 0;">Araç Tarihçesi</h1>
+      <div class="vh-subtitle">
+      <strong>{{ vehicle.plate }}</strong> — {{ vehicle.brand_model }}
+      </div>
+    </div>
+  </div>
+
+  <div class="vh-tabs">
+    <a href="{{ change_url }}" class="vh-tab">Araç</a>
+    <a href="{{ history_url }}" class="vh-tab is-active">Araç Tarihçesi</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" novalidate id="vehicleHistoryMainForm">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="errornote">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <div class="vh-card">
+      <h2 class="vh-card-title">Temel Bilgiler</h2>
+      <div class="vh-grid">
+        <div class="vh-field">
+          <label>Plaka</label>
+          <div class="vh-readonly"><strong>{{ vehicle.plate }}</strong></div>
+        </div>
+        <div class="vh-field">
+          <label>Marka/Model</label>
+          <div class="vh-readonly">{{ vehicle.brand_model }}</div>
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.model_year.errors }}
+          <label for="{{ form.model_year.id_for_label }}">{{ form.model_year.label }}</label>
+          {{ form.model_year }}
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.color.errors }}
+          <label for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+          {{ form.color }}
+        </div>
+      </div>
+    </div>
+
+    <div class="vh-card">
+      <h2 class="vh-card-title">Sahiplik / Kullanıcı Bilgileri</h2>
+      <div class="vh-grid">
+        <div class="vh-field vh-field--full">
+          {{ form.owner_person.errors }}
+          <label for="{{ form.owner_person.id_for_label }}">{{ form.owner_person.label }}</label>
+          {{ form.owner_person }}
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.user_company_department.errors }}
+          <label for="{{ form.user_company_department.id_for_label }}">{{ form.user_company_department.label }}</label>
+          {{ form.user_company_department }}
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.user_name.errors }}
+          <label for="{{ form.user_name.id_for_label }}">{{ form.user_name.label }}</label>
+          {{ form.user_name }}
+        </div>
+      </div>
+    </div>
+
+    <div class="vh-card">
+      <h2 class="vh-card-title">Tarih Takibi</h2>
+      <div class="vh-grid">
+        <div class="vh-field vh-field--full">
+          <div class="vh-inline">
+            <div style="min-width: 260px;">
+              {{ form.inspection_date.errors }}
+              <label for="{{ form.inspection_date.id_for_label }}">{{ form.inspection_date.label }}</label>
+              {{ form.inspection_date }}
+            </div>
+            <div class="vh-kalan">
+              <label>Muayene Bitiş Kalan Gün</label>
+              <div class="vh-readonly">
+                <strong id="inspectionRemaining">
+                  {% if history.inspection_remaining_days is not None %}
+                    {{ history.inspection_remaining_days }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vh-field vh-field--full">
+          <div class="vh-inline">
+            <div style="min-width: 260px;">
+              {{ form.insurance_end_date.errors }}
+              <label for="{{ form.insurance_end_date.id_for_label }}">{{ form.insurance_end_date.label }}</label>
+              {{ form.insurance_end_date }}
+            </div>
+            <div class="vh-kalan">
+              <label>Sigorta Kalan Gün</label>
+              <div class="vh-readonly">
+                <strong id="insuranceRemaining">
+                  {% if history.insurance_remaining_days is not None %}
+                    {{ history.insurance_remaining_days }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vh-field vh-field--full">
+          <div class="vh-inline">
+            <div style="min-width: 260px;">
+              {{ form.casco_end_date.errors }}
+              <label for="{{ form.casco_end_date.id_for_label }}">{{ form.casco_end_date.label }}</label>
+              {{ form.casco_end_date }}
+            </div>
+            <div class="vh-kalan">
+              <label>Kasko Kalan Gün</label>
+              <div class="vh-readonly">
+                <strong id="cascoRemaining">
+                  {% if history.casco_remaining_days is not None %}
+                    {{ history.casco_remaining_days }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vh-card">
+      <h2 class="vh-card-title">Araç Belgeleri</h2>
+      <div class="vh-grid">
+        <div class="vh-field vh-field--full">
+          <label for="id_registration_documents">Ruhsat Görseli</label>
+          <div class="vh-inline">
+            <div style="min-width: 320px; width: 100%;">
+              <input
+                type="file"
+                id="id_registration_documents"
+                name="registration_documents"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.gif"
+                multiple
+              >
+            </div>
+          </div>
+          {% if registration_docs %}
+          <ul class="vh-doc-list">
+            {% for doc in registration_docs %}
+            <li>
+              <span>{{ doc.original_filename|default:doc.file.name }}</span>
+              <a href="{{ doc.file.url }}" class="button" download>İndir</a>
+              <label class="vh-doc-delete-label">
+                <input type="checkbox" name="delete_registration_docs" value="{{ doc.id }}">
+                Sil
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+            {% endif %}
+        </div>
+
+        <div class="vh-field vh-field--full">
+          <label for="id_insurance_casco_documents">Sigorta/Kasko Görseli</label>
+          <div class="vh-inline">
+            <div style="min-width: 320px; width: 100%;">
+              <input
+                type="file"
+                id="id_insurance_casco_documents"
+                name="insurance_casco_documents"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.gif"
+                multiple
+              >
+            </div>
+          </div>
+          {% if insurance_casco_docs %}
+          <ul class="vh-doc-list">
+            {% for doc in insurance_casco_docs %}
+            <li>
+              <span>{{ doc.original_filename|default:doc.file.name }}</span>
+              <a href="{{ doc.file.url }}" class="button" download>İndir</a>
+              <label class="vh-doc-delete-label">
+                <input type="checkbox" name="delete_insurance_casco_docs" value="{{ doc.id }}">
+                Sil
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="vh-card">
+      <h2 class="vh-card-title">Teknik Bilgiler</h2>
+      <div class="vh-grid">
+        <div class="vh-field vh-field--full">
+          {{ form.last_maintenance_kilometer.errors }}
+          <label for="{{ form.last_maintenance_kilometer.id_for_label }}">{{ form.last_maintenance_kilometer.label }}</label>
+          {{ form.last_maintenance_kilometer }}
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.tire_size.errors }}
+          <label for="{{ form.tire_size.id_for_label }}">{{ form.tire_size.label }}</label>
+          {{ form.tire_size }}
+        </div>
+        <div class="vh-field vh-field--full">
+          {{ form.last_user_notes.errors }}
+          <label for="{{ form.last_user_notes.id_for_label }}">{{ form.last_user_notes.label }}</label>
+          {{ form.last_user_notes }}
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <div class="vh-card">
+    <h2 class="vh-card-title">Araç Notları</h2>
+    <div class="vh-notes-layout">
+      <div>
+        <form method="post" novalidate style="margin: 0 0 12px 0;">
+          {% csrf_token %}
+          <label for="id_vehicle_note_text"><strong>Not Ekle</strong></label>
+          <textarea
+            id="id_vehicle_note_text"
+            name="vehicle_note_text"
+            class="vh-notes-input"
+            placeholder="Araca ait notu buraya yazınız..."
+            required
+          ></textarea>
+          <div style="margin-top: 10px;">
+            <button type="submit" class="button" name="note_action" value="add_note">Kaydet</button>
+          </div>
+        </form>
+
+        <label><strong>Kayıtlı Notlar</strong></label>
+        <div class="vh-notes-list" id="vehicleNotesReadonly">
+          {% if vehicle_notes %}
+            {% for note in vehicle_notes %}
+              <div class="vh-notes-line">{{ forloop.counter }}- {{ note.note_text }}</div>
+            {% endfor %}
+          {% else %}
+            <div class="vh-notes-line">-</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="vh-notes-actions">
+        <button type="button" class="button" id="vehicleNotesViewBtn">Görüntüle</button>
+        <a href="{{ notes_download_url }}" class="button">İndir</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="vh-modal-overlay" id="vehicleNotesModalOverlay"></div>
+  <div class="vh-modal-card" id="vehicleNotesModalCard">
+    <h3 class="vh-modal-title">Araç Notları</h3>
+    <pre class="vh-modal-text" id="vehicleNotesModalText"></pre>
+    <div class="vh-modal-actions">
+      <button type="button" class="button" id="vehicleNotesModalCloseBtn">Kapat</button>
+    </div>
+  </div>
+  <pre id="vehicleNotesModalSource" style="display:none;">{% if vehicle_notes %}{% for note in vehicle_notes %}{{ forloop.counter }}- {{ note.note_text }}
+{% endfor %}{% else %}-{% endif %}</pre>
+
+  <div class="submit-row vh-main-actions" style="margin-top: 14px;">
+    <input type="submit" value="Kaydet" class="default" form="vehicleHistoryMainForm">
+    <a href="{{ change_url }}" class="button cancel-link">İptal</a>
+  </div>
+
+  <script>
+  (function () {
+    function parseDate(value) {
+      if (!value) return null;
+      var parts = value.split('-');
+      if (parts.length !== 3) return null;
+      var y = parseInt(parts[0], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var d = parseInt(parts[2], 10);
+      var dt = new Date(y, m, d);
+      if (isNaN(dt.getTime())) return null;
+      dt.setHours(0,0,0,0);
+      return dt;
+    }
+
+    function remainingDays(dateStr) {
+      var target = parseDate(dateStr);
+      if (!target) return null;
+      var now = new Date();
+      now.setHours(0,0,0,0);
+      var ms = target.getTime() - now.getTime();
+      return Math.round(ms / 86400000);
+    }
+
+    function bind(inputId, outId) {
+      var input = document.getElementById(inputId);
+      var out = document.getElementById(outId);
+      if (!input || !out) return;
+      function update() {
+        var days = remainingDays(input.value);
+        out.textContent = (days === null ? '-' : String(days));
+      }
+      input.addEventListener('change', update);
+      input.addEventListener('input', update);
+    }
+
+    bind('{{ form.inspection_date.auto_id }}', 'inspectionRemaining');
+    bind('{{ form.insurance_end_date.auto_id }}', 'insuranceRemaining');
+    bind('{{ form.casco_end_date.auto_id }}', 'cascoRemaining');
+
+    var notesViewBtn = document.getElementById('vehicleNotesViewBtn');
+    var notesSource = document.getElementById('vehicleNotesModalSource');
+    var notesModalOverlay = document.getElementById('vehicleNotesModalOverlay');
+    var notesModalCard = document.getElementById('vehicleNotesModalCard');
+    var notesModalText = document.getElementById('vehicleNotesModalText');
+    var notesModalCloseBtn = document.getElementById('vehicleNotesModalCloseBtn');
+    var notesModalOpen = false;
+
+    function closeNotesModal() {
+      notesModalOverlay.classList.remove('is-open');
+      notesModalCard.classList.remove('is-open');
+      notesModalOpen = false;
+    }
+
+    if (notesViewBtn && notesSource && notesModalOverlay && notesModalCard && notesModalText && notesModalCloseBtn) {
+      notesViewBtn.addEventListener('click', function () {
+        notesModalText.textContent = notesSource.textContent.trim() || '-';
+        notesModalOverlay.classList.add('is-open');
+        notesModalCard.classList.add('is-open');
+        notesModalOpen = true;
+      });
+      notesModalOverlay.addEventListener('click', closeNotesModal);
+      notesModalCloseBtn.addEventListener('click', closeNotesModal);
+      document.addEventListener('keydown', function (event) {
+        if (notesModalOpen && event.key === 'Escape') {
+          closeNotesModal();
+        }
+      });
+    }
+  })();
+  </script>
+{% endblock %}
+

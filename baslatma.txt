@@ -1,0 +1,19 @@
+python manage.py runserver //program başlatma
+python manage.py createsuperuser  //super kullanıcı oluşturma
+python manage.py shell -c "from vehicles.models import *; VehicleUsage.objects.all().delete(); VehicleReservation.objects.all().delete(); Vehicle.objects.all().delete(); User.objects.all().delete(); print('Tüm veriler silindi')"  //database silme
+python manage.py migrate
+python manage.py makemigrations  //database migration alma
+waitress ile servizs başlatma: waitress-serve --listen=127.0.0.1:8000 cartrack.wsgi:application
+
+notification temizleme
+python -c "import sqlite3; c=sqlite3.connect('db.sqlite3'); c.execute('DELETE FROM notification_log'); c.commit(); c.close(); print('notification_log cleared')"
+
+notifi auto açmak 
+schtasks /Change /TN "CarTrack Vehicle Notification Job" /Enable
+schtasks /Change /TN "CarTrack Vehicle Notification Job" /Disable
+
+kontrol
+python -c "import csv,subprocess; r=subprocess.run(['schtasks','/Query','/TN','CarTrack Vehicle Notification Job','/FO','CSV','/NH'],capture_output=True,text=True); print('Task bulunamadı veya sorgulanamadı' if r.returncode!=0 else ('Task Status: '+(next(csv.reader([r.stdout.strip().splitlines()[0]]))[2] if r.stdout.strip() else 'Unknown')))"
+
+önce bir kere çalıştoır
+python register_task.py

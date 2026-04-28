@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+{% block title %}Rezervasyon Oluştur - Araç Havuzu Yönetim Sistemi{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div class="card">
+        <h2 style="margin-bottom: 1.5rem;">Rezervasyon Oluştur</h2>
+        
+        <div style="background-color: rgba(0,20,137,0.06); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid rgba(0,20,137,0.15);">
+            <p><strong>Plaka:</strong> {{ vehicle.plate }}</p>
+            <p><strong>Marka/Model:</strong> {{ vehicle.brand_model }}</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}</label>
+                <div class="datetime-field-wrap">
+                    {{ form.start_time }}
+                    <button type="button" class="datetime-picker-btn" data-target="{{ form.start_time.id_for_label }}" aria-label="Takvim aç">
+                        &#128197;
+                    </button>
+                </div>
+                {% if form.start_time.errors %}
+                <div style="color: #fe5000; font-size: 0.9rem; margin-top: 0.25rem;">
+                    {{ form.start_time.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}</label>
+                <div class="datetime-field-wrap">
+                    {{ form.end_time }}
+                    <button type="button" class="datetime-picker-btn" data-target="{{ form.end_time.id_for_label }}" aria-label="Takvim aç">
+                        &#128197;
+                    </button>
+                </div>
+                {% if form.end_time.errors %}
+                <div style="color: #fe5000; font-size: 0.9rem; margin-top: 0.25rem;">
+                    {{ form.end_time.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="reservationAvailabilityInfo" class="availability-info is-hidden"></div>
+            
+            <div class="form-group">
+                <label for="{{ form.purpose.id_for_label }}">{{ form.purpose.label }}</label>
+                {{ form.purpose }}
+                {% if form.purpose.errors %}
+                <div style="color: #fe5000; font-size: 0.9rem; margin-top: 0.25rem;">
+                    {{ form.purpose.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+            <div style="color: #fe5000; margin-bottom: 1rem;">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" id="openAgreementBtn" class="btn btn-success">Rezervasyon Oluştur</button>
+                <button type="submit" id="finalSubmitBtn" style="display:none;">Submit</button>
+                <a href="{% url 'vehicle_list' %}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Kullanıcı Sözleşmesi Modal -->
+<div id="agreementModal" class="agreement-modal" role="dialog" aria-labelledby="agreementModalTitle" aria-hidden="true">
+    <div class="agreement-modal-backdrop"></div>
+    <div class="agreement-modal-dialog">
+        <div class="agreement-modal-content">
+            <div class="agreement-modal-header">
+                <h2 id="agreementModalTitle">Kullanıcı Sözleşmesi</h2>
+                <button type="button" class="agreement-modal-close" aria-label="Kapat">&times;</button>
+            </div>
+            <div class="agreement-modal-body">
+                <div id="agreementScrollContainer" class="agreement-scroll-container">
+                    <div id="agreementText" class="agreement-text">
+                        <p><strong>ARAÇ HAVUZU KULLANIM KULLANICI SÖZLEŞMESİ</strong></p>
+                        <p>Bu sözleşme, araç havuzu sistemini kullanacak personel ile işletme arasında düzenlenmektedir.</p>
+                        <p><strong>1. Amaç ve Kapsam</strong></p>
+                        <p>•Bu talimat, şirketimize ait veya şirket adına kiralanan havuz araçlarının ortak, planlı ve güvenli kullanımını düzenlemek amacıyla hazırlanmıştır. Havuz araçları şahsa zimmetli değildir, belirli süreyle kullanılır ve kullanım sonrası geri bırakılır.</p>
+                        <p><strong>2. Yetkili Kullanıcılar</strong></p>
+                        <p>•Havuz araçlarını yalnızca departman yöneticisi tarafından yetkilendirilmiş şirket personeli kullanabilir.</p>
+                        <p>•Geçerli sürücü belgesi olmayan personel araç kullanamaz.</p>
+                        <p>•Araçlar üçüncü şahıslara devredilemez.</p>
+                        <p><strong>3. Rezervasyon ve Kullanım</strong></p>
+                        <p>•Havuz araçları, şirketin online rezervasyon sistemi üzerinden rezerve edilerek kullanılır.</p>
+                        <p>•Rezervasyon süresi dışında araç kullanılamaz.</p>
+                        <p>•Araçlar yalnızca iş amaçlı kullanılır.</p>
+                        <p>•İl dışı kullanım ilgili yönetici onayına tabidir.</p>
+                        <p><strong>4. Araç Teslim Alma ve İade</strong></p>
+                        <p>•Araç teslim alma ve iade işlemleri Araç Teslim-İade Kontrol Formu ile online system üzerinden yapılır.</p>
+                        <p>•Araçlar temiz, yakıt durumu uygun ve hasarsız şekilde iade edilir.</p>
+                        <p>•Kullanım sırasında oluşan hasarlar iade sırasında bildirilir.</p>
+                        <p><strong>5. Kullanım Kuralları</strong></p>
+                        <p>•Trafik kurallarına uyulması zorunludur.</p>
+                        <p>•Alkol, uyuşturucu veya dikkat azaltıcı ilaç etkisi altında araç kullanılamaz.</p>
+                        <p>•Araçlarda sigara içilmesi kesinlikle yasaktır. Alkol, uyuşturucu maddeler veya tedavi amaçlı uyku yapıcı ilaçlar alındıktan sonra araç kullanılamaz. Kullanımı halinde iş akdi derhal feshedilir. Şirket itibarını zedeleyecek davranışlardan kaçınılır.</p>
+                        <p>•Araçların temiz ve bakımlı tutulması zorunludur.</p>
+                        <p>•Araçların seyir halinde farları sürekli açık tutulmalıdır. Göreve çıkmadan önce, muhakkak far, fren, park ve sinyal lambalarını kontrol edilmelidir.</p>
+                        <p>•Araçların içerisinde, yapılan işin mahiyetinin dışında veya şirket çalışanı dışında 3. kişiler bulunmamalıdır.</p>
+                        <p>•Her durumda trafik kurallarına riayet edilmeli, diğer araç ve sürücülerin can güvenliğini tehlikeye atacak şekilde araç kullanmaktan ve şirketin prestijini sarsacak olumsuz davranışlar sergilemekten kesinlikle kaçınılmalıdır.</p>
+                        <p>•Havuz araçlarında, aracın iç ve dışını gösteren kamera ile kayıt yapılmaktadır. Bu kayıt cihazının bağlantısının kesilmemesi, ve bağlantısı mevcut değilse takılması gerekmektedir.</p>
+                        <p>•Kullanıcı, herhangi bir sebeple trafik birimleri tarafından sürücü belgesine el konulduğu takdirde bunu hemen bağlı bulunduğu amirine bildirmekle ve aracı merkezde idari işler birimine, bölgelerde bölge yöneticisine teslim etmekle yükümlüdür. Aksi takdirde oluşacak hukuki ve maddi tazminleri peşinen kendisi kabullenir.</p>
+                        <p>•Sürücü hatalarından kaynaklanan ve sigorta şirketi tarafından kabul edilmeyen parça, vb. malzeme bedeli ve bakım bedelleri kullanıcı tarafından tazmin edilir. (Lastik yarılması, jant hasarları, jant kapağı, sigara yanığı vb.) Aracın çalınması halinde aracı zilyetliğinde bulunduran kullanıcının, aracın çalınmasında kusuru bulunması halinde ENSMART BİLGİ İLETİŞİM TEKNOLOJİLERİ LİMİTED ŞİRKETİ'NE bir bedel ödemek zorunda kalır ise bu bedelden aracı kullanan ENSMART BİLGİ İLETİŞİM TEKNOLOJİLERİ LİMİTED ŞİRKETİ'NE karşı sorumludur. Ve bu bedeli ödeyeceğini kabul ve taahhüt eder.</p>
+                        <p>•Kullanıcı, araç, arıza vb. durumlarını idari işlere derhal bildirmelidir.</p>
+                        <p><strong>6. Trafik Cezaları ve Sorumluluk</strong></p>
+                        <p>•Kullanım süresince oluşan trafik cezaları aracı kullanan personele aittir.</p>
+                        <p>•Ceza bedelleri kullanıcıya rücu edilir.</p>
+                        <p>•Kullanıcı trafik cezasına ait ödeme makbuzunun aslını trafik ceza tutanağının fotokopisi ile birlikte idari işler birimine yasal ödeme süresi içerisinde ödeyerek ulaştırmakla yükümlüdür.</p>
+                        <p>•İdari işler birimi, trafik cezası bulunan aracın dosyasında ödeme makbuzu aslının olmaması durumunda trafik cezasını faizi ile birlikte vergi dairesine öder ve kullanıcıdan tazmini için muhasebe servisini bilgilendirir. Muhasebe servisi gerekli tazmini yapar.</p>
+                        <p><strong>7. Kaza ve Arıza Durumu</strong></p>
+                        <p>•Trafik kazalarında mutlaka alkol muayenesi yaptırılmalı, kaza tutanakları olay yerinde tutturulmalıdır. Evrakların aslı ve sigorta hasar dosya kayıt numarası öğrenilerek idari işler birimine, yetkililerine ve ilgili yöneticisine ulaştırılmalıdır. Kaza ilgili tüm yöneticilere bildirilmelidir. Kazayı yapanlar arası tutanak veya anlaşma geçerli değildir, mutlaka trafik ekibi çağırılmalı yani resmi bir işlem yapılmalıdır.</p>
+                        <p>•Araçta arıza tespit edilmesi halinde araç kullanılmaz ve idari birime bilgi verilir.</p>
+                        <p>•Kaza raporu okunarak teslim alınmalıdır.</p>
+                        <p>•Kaza durumunda ilgili ilk yönetici (bölgelerde bölge yöneticisi) olay ile ilgili görüş ve düşüncelerini belirterek, tutanağın fotokopisi ile birlikte idari işler birimine ulaştırmak zorundadır. Kazanın gerçekleştiği tarihte güzergah ve uğranılan noktalar belirtilmelidir.</p>
+                        <p>•Uygunsuz araç kullanmaktan doğan herhangi bir kaza durumunda; tutanakta belirtilen kusur dağılım oranının % 50'den fazla olması halinde sürücü, kazadan kaynaklanan giderleri ve varsa 3. kişilere ödenecek tazminatları karşılamakla yükümlüdür.</p>
+                        <p>•Kaza harici oluşan hasarlarda idari işler biriminden bilgi alınarak prosedürler yerine getirilmelidir.</p>
+                        <p>•Kaza sonrası ayrıntılı kaza raporu doldurularak idari işler birimine iletilmelidir.</p>
+                        <p><strong>8. İş Akdi Feshine Sebep Olan İhlaller</strong></p>
+                        <p>•Alkol ve uyuşturucu, uyku yapıcı, ilaçların etkisinde araç kullanmak,</p>
+                        <p>•Diğer araç ve sürücülerin can güvenliğini tehlikeye atacak şekilde araç kullanmak,</p>
+                        <p>•Şirket prestijini sarsacak şekilde araç kullanmak,</p>
+                        <p>•Diğer araç ve sürücülerin can güvenliğini tehlikeye atacak şekilde araç kullanmak,</p>
+                        <p>•Kazaların sürekliliği ve kusur oranı,</p>
+                        <p>•Hız sınırının aşılması ile ilgili cezalar,</p>
+                        <p>•Ehliyetsiz ve ruhsatsız araç kullanmak,</p>
+                        <p>•Trafik cezalarının sürekliliği,</p>
+                        <p>•Şirket yönetimi, yukarıda belirtilen maddelerin herhangi birinin ihlalini iş akdi fesih nedeni olarak geçerli kılabilir.</p>
+                        <p><strong>9. Yürürlük</strong></p>
+                        <p>•Bu talimat yayımlandığı tarihten itibaren yürürlüğe girer.</p>
+                        <p>•Şirket gerekli gördüğü durumlarda talimatta değişiklik yapma hakkını saklı tutar.</p>
+                        <p><strong>Tebliğ Eden: ENSMART BİLGİ İLETİŞİM TEKNOLOJİLERİ LİMİTED ŞİRKETİ</strong></p>
+                    </div>
+                </div>
+                <div class="agreement-actions">
+                    <label class="agreement-checkbox-label">
+                        <input type="checkbox" id="agreementCheckbox" disabled>
+                        <span>Kullanıcı Sözleşmesini okudum, anladım ve kabul ediyorum.</span>
+                    </label>
+                    <button type="button" id="agreementContinueBtn" class="btn btn-primary agreement-continue-btn" disabled>Devam Et</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .datetime-field-wrap {
+        position: relative;
+    }
+
+    .datetime-field-wrap .form-control[type="datetime-local"] {
+        padding-right: 2.55rem;
+    }
+
+    .datetime-picker-btn {
+        position: absolute;
+        top: 50%;
+        right: 0.5rem;
+        transform: translateY(-50%);
+        width: 1.75rem;
+        height: 1.75rem;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: #001489;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    .datetime-picker-btn:hover {
+        background: rgba(0, 20, 137, 0.08);
+    }
+
+    .datetime-field-wrap .form-control[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .user-dark .datetime-picker-btn {
+        color: #ffffff;
+        background: rgba(143, 180, 255, 0.12);
+    }
+
+    .user-dark .datetime-picker-btn:hover {
+        background: rgba(143, 180, 255, 0.24);
+    }
+
+    .agreement-modal { display: none; position: fixed; inset: 0; z-index: 1200; }
+    .agreement-modal.is-open { display: block; }
+    .agreement-modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); }
+    .agreement-modal-dialog { position: relative; max-width: 760px; margin: 3vh auto; width: calc(100% - 24px); }
+    .agreement-modal-content { background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0, 20, 137, 0.22); }
+    .agreement-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(0, 20, 137, 0.16); }
+    .agreement-modal-close { border: none; background: transparent; font-size: 1.5rem; cursor: pointer; color: #001489; }
+    .agreement-modal-body { padding: 16px; }
+    .agreement-scroll-container { max-height: 52vh; overflow-y: auto; border: 1px solid rgba(0, 20, 137, 0.2); border-radius: 6px; padding: 12px; background: #fbfcff; }
+    .agreement-text p { margin-bottom: 0.65rem; font-size: 0.94rem; }
+    .agreement-actions { margin-top: 14px; display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .agreement-checkbox-label { display: flex; gap: 8px; align-items: flex-start; color: #001489; font-size: 0.94rem; }
+    .agreement-continue-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .availability-info {
+        margin-top: -0.35rem;
+        margin-bottom: 1rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    .availability-info.is-hidden { display: none; }
+    .availability-info.is-success {
+        color: #0d6435;
+        background: rgba(13, 100, 53, 0.1);
+        border-color: rgba(13, 100, 53, 0.28);
+    }
+    .availability-info.is-warning {
+        color: #8a1e1e;
+        background: rgba(138, 30, 30, 0.1);
+        border-color: rgba(138, 30, 30, 0.3);
+    }
+    .user-dark .availability-info.is-warning {
+        color: #ffdeda;
+        background: rgba(254, 80, 0, 0.22);
+        border-color: rgba(255, 160, 136, 0.82);
+    }
+    .user-dark .availability-info.is-success {
+        color: #d8ffea;
+        background: rgba(56, 167, 102, 0.2);
+        border-color: rgba(124, 255, 186, 0.72);
+    }
+    #openAgreementBtn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        filter: grayscale(22%);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var modal = document.getElementById('agreementModal');
+        var openBtn = document.getElementById('openAgreementBtn');
+        var closeBtn = modal ? modal.querySelector('.agreement-modal-close') : null;
+        var backdrop = modal ? modal.querySelector('.agreement-modal-backdrop') : null;
+        var scrollContainer = document.getElementById('agreementScrollContainer');
+        var agreementCheckbox = document.getElementById('agreementCheckbox');
+        var continueBtn = document.getElementById('agreementContinueBtn');
+        var submitBtn = document.getElementById('finalSubmitBtn');
+        var createReservationBtn = document.getElementById('openAgreementBtn');
+        var pickerButtons = document.querySelectorAll('.datetime-picker-btn');
+        var startInput = document.getElementById('{{ form.start_time.id_for_label }}');
+        var endInput = document.getElementById('{{ form.end_time.id_for_label }}');
+        var availabilityInfo = document.getElementById('reservationAvailabilityInfo');
+        var availabilityUrl = "{% url 'reservation_availability_check' vehicle.id %}";
+        var availabilityTimer = null;
+
+        if (!modal || !openBtn || !scrollContainer || !agreementCheckbox || !continueBtn || !submitBtn) {
+            return;
+        }
+
+        function openModal() {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            agreementCheckbox.checked = false;
+            agreementCheckbox.disabled = true;
+            continueBtn.disabled = true;
+            scrollContainer.scrollTop = 0;
+        }
+
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function hasReachedBottom() {
+            return scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 2;
+        }
+
+        function onScroll() {
+            if (hasReachedBottom()) {
+                agreementCheckbox.disabled = false;
+            }
+        }
+
+        function onCheckbox() {
+            continueBtn.disabled = !agreementCheckbox.checked;
+        }
+
+        function submitForm() {
+            if (!agreementCheckbox.checked) {
+                return;
+            }
+            submitBtn.click();
+        }
+
+        function openDateTimePicker(targetId) {
+            var input = document.getElementById(targetId);
+            if (!input) return;
+            if (typeof input.showPicker === 'function') {
+                input.showPicker();
+                return;
+            }
+            input.focus();
+            input.click();
+        }
+
+        function setAvailabilityState(type, message) {
+            if (!availabilityInfo) return;
+            availabilityInfo.classList.remove('is-hidden', 'is-success', 'is-warning');
+            if (type === 'hidden') {
+                availabilityInfo.classList.add('is-hidden');
+                availabilityInfo.textContent = '';
+                if (createReservationBtn) {
+                    createReservationBtn.disabled = false;
+                }
+                return;
+            }
+            availabilityInfo.classList.add(type === 'success' ? 'is-success' : 'is-warning');
+            availabilityInfo.textContent = message || '';
+            if (createReservationBtn) {
+                createReservationBtn.disabled = (type !== 'success');
+            }
+        }
+
+        function checkAvailability() {
+            if (!startInput || !endInput) return;
+            var startValue = (startInput.value || '').trim();
+            var endValue = (endInput.value || '').trim();
+            if (!startValue || !endValue) {
+                setAvailabilityState('hidden');
+                return;
+            }
+            var query = new URLSearchParams({ start_time: startValue, end_time: endValue });
+            fetch(availabilityUrl + '?' + query.toString(), { credentials: 'same-origin' })
+                .then(function(response) { return response.json().then(function(data) { return { ok: response.ok, data: data }; }); })
+                .then(function(result) {
+                    if (result.data && result.data.available) {
+                        setAvailabilityState('success', result.data.message || 'Araç uygun görünüyor.');
+                        return;
+                    }
+                    setAvailabilityState('warning', (result.data && result.data.message) || 'Seçilen zaman aralığı uygun görünmüyor.');
+                })
+                .catch(function() {
+                    setAvailabilityState('warning', 'Uygunluk kontrolü sırasında bir sorun oluştu.');
+                });
+        }
+
+        function scheduleAvailabilityCheck() {
+            if (availabilityTimer) {
+                window.clearTimeout(availabilityTimer);
+            }
+            availabilityTimer = window.setTimeout(checkAvailability, 450);
+        }
+
+        openBtn.addEventListener('click', openModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        scrollContainer.addEventListener('scroll', onScroll);
+        agreementCheckbox.addEventListener('change', onCheckbox);
+        continueBtn.addEventListener('click', submitForm);
+        if (startInput) startInput.addEventListener('change', scheduleAvailabilityCheck);
+        if (startInput) startInput.addEventListener('input', scheduleAvailabilityCheck);
+        if (endInput) endInput.addEventListener('change', scheduleAvailabilityCheck);
+        if (endInput) endInput.addEventListener('input', scheduleAvailabilityCheck);
+        pickerButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                openDateTimePicker(button.getAttribute('data-target'));
+            });
+        });
+    })();
+</script>
+{% endblock %}
+

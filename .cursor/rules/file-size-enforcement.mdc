@@ -1,0 +1,11 @@
+---
+description: Enforce file size limits and splitting
+alwaysApply: true
+---
+
+# File size enforcement
+
+- Do not grow any single file beyond **700 lines**.
+- If a file is already above 700 lines, avoid adding code to it; refactor by extracting modules/components first.
+- Prefer small, focused modules (single responsibility).
+- Avoid copy/paste duplication; extract shared utilities/components.

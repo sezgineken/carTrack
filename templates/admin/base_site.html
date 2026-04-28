@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'admin-modern.css' %}">
+{% endblock %}
+
+{% block title %}{{ title }} | Araç Takip Yönetim Sistemi{% endblock %}
+
+{% block branding %}
+<div class="admin-branding">
+    <img src="{% static 'enlogo1.png' %}" alt="Ensmart Logo" class="admin-brand-logo">
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">Araç Takip Yönetim Sistemi</a></h1>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block userlinks %}
+{% if user.has_usable_password %}
+<a href="{% url 'admin:password_change' %}" class="admin-user-link">Şifre değiştir</a>
+{% endif %}
+<a href="{% url 'admin:logout' %}" class="admin-user-link">Çıkış yap</a>
+{% endblock %}

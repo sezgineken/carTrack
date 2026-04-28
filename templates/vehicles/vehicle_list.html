@@ -1,0 +1,698 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Araç Listesi - Araç Havuzu Yönetim Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --vehicle-card-min-height: 470px;
+    }
+
+    .container {
+        max-width: 1440px;
+    }
+
+    .vehicle-list-page .card {
+        background: rgba(255, 255, 255, 0.36) !important;
+        border: 0 !important;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(3px);
+    }
+
+    .vehicle-list-page-title {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+    }
+
+    .vehicle-list-page div[style*="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))"] {
+        grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)) !important;
+        gap: 0.9rem !important;
+    }
+
+    .vehicle-list-page img[style*="height: 140px"] {
+        height: calc(var(--vehicle-card-min-height) * 0.5) !important;
+        border: 0 !important;
+    }
+
+    .vehicle-list-page div[style*="border: 2px solid #001489"][style*="padding: 1.5rem"] {
+        border: 0 !important;
+        padding: 0.8rem !important;
+        min-height: var(--vehicle-card-min-height);
+    }
+
+    .vehicle-list-page div[style*="margin-bottom: 1rem;"] {
+        margin-bottom: 0.65rem !important;
+    }
+
+    .vehicle-list-page p[style*="font-size: 0.9rem"] {
+        line-height: 1.25;
+    }
+
+    .vehicle-list-page h2,
+    .vehicle-list-page h3,
+    .vehicle-list-page p,
+    .vehicle-list-page strong,
+    .vehicle-list-page span[data-vehicle-km] {
+        color: #2f4169 !important;
+    }
+
+    .vehicle-list-page .vehicle-item-card {
+        border-radius: 12px !important;
+        background-color: rgba(0, 20, 137, 0.08) !important;
+    }
+
+    .vehicle-list-page .status-badge {
+        border-radius: 999px !important;
+        padding: 0.34rem 0.72rem !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+    }
+
+    .vehicle-list-page .status-badge.status-in-use {
+        background-color: rgba(227, 114, 97, 0.22) !important;
+        color: #5f2f2a !important;
+    }
+
+    .vehicle-list-page .status-badge.status-available {
+        background-color: rgba(91, 147, 195, 0.22) !important;
+        color: #2b4f78 !important;
+    }
+
+    .vehicle-list-page .btn {
+        min-height: 40px !important;
+        border-radius: 8px !important;
+        padding: 0.58rem 0.92rem !important;
+        font-size: 0.93rem !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .vehicle-list-page .btn.btn-primary,
+    .vehicle-list-page .btn.btn-success,
+    .vehicle-list-page .btn.btn-danger {
+        background-color: #f08f5c !important;
+        color: #ffffff !important;
+    }
+
+    .vehicle-list-page .btn.btn-primary:hover,
+    .vehicle-list-page .btn.btn-success:hover,
+    .vehicle-list-page .btn.btn-danger:hover {
+        background-color: #e1814e !important;
+    }
+
+    .vehicle-list-page .btn.btn-secondary {
+        background-color: #5f739f !important;
+        color: #ffffff !important;
+    }
+
+    .vehicle-list-page .btn.btn-secondary:hover {
+        background-color: #52668f !important;
+    }
+
+    .vehicle-list-page .vehicle-mini-timeline {
+        margin: 0.2rem 0 0.7rem;
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.16);
+    }
+    .vehicle-list-page .vehicle-mini-timeline-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+    }
+    .vehicle-list-page .vehicle-mini-timeline-title {
+        font-size: 0.76rem;
+        font-weight: 800;
+        color: #183160;
+    }
+    .vehicle-list-page .vehicle-mini-timeline-arrow {
+        font-size: 1.36rem;
+        font-weight: 700;
+        color: #2d4678;
+        width: 1.35rem;
+        height: 1.35rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(67, 95, 155, 0.34);
+        transition: transform 0.2s ease;
+    }
+    .vehicle-list-page .vehicle-mini-timeline.is-collapsed .vehicle-mini-timeline-arrow {
+        transform: rotate(-90deg);
+    }
+    .vehicle-list-page .vehicle-mini-timeline-body {
+        margin-top: 0.32rem;
+    }
+    .vehicle-list-page .vehicle-mini-timeline.is-collapsed .vehicle-mini-timeline-body {
+        display: none;
+    }
+    .vehicle-list-page .vehicle-mini-timeline-track {
+        position: relative;
+        height: 12px;
+        background: rgba(35, 56, 103, 0.46);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .vehicle-list-page .vehicle-mini-timeline-segment {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-radius: 999px;
+        background: rgba(223, 113, 96, 0.72);
+    }
+    .vehicle-list-page .vehicle-mini-timeline-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.28rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #1d3769;
+    }
+    @media (max-width: 1100px) {
+        .container {
+            max-width: 100%;
+        }
+        .vehicle-list-page div[style*="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))"] {
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+        }
+    }
+    @media (max-width: 820px) {
+        :root {
+            --vehicle-card-min-height: 430px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vehicle-list-page">
+<h1 class="vehicle-list-page-title">Araç Listesi</h1>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">Ataşehir</h2>
+
+    {% if atasehir_vehicle_data %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for item in atasehir_vehicle_data %}
+        <div class="vehicle-item-card" data-today-busy="{{ item.today_busy_spans }}" style="border: 2px solid #001489; border-radius: 8px; padding: 1.5rem; background-color: rgba(0,20,137,0.08);">
+            <div style="margin-bottom: 1rem;">
+                <img
+                    src="{% if item.vehicle.photo %}{{ item.vehicle.photo.url }}{% else %}{% static 'vehicle-placeholder.svg' %}{% endif %}"
+                    alt="{{ item.vehicle.plate }}"
+                    style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,20,137,0.2); background: #fff;"
+                    loading="lazy"
+                >
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="margin-bottom: 0.5rem;">{{ item.vehicle.plate }}</h3>
+                    <p style="color: #001489; font-size: 0.9rem; opacity: 0.85;">{{ item.vehicle.brand_model }}</p>
+                    <p style="color: #001489; font-size: 0.9rem; margin-top: 0.35rem;">
+                        <strong>Güncel KM:</strong>
+                        <span data-vehicle-km="{{ item.vehicle.id }}">{{ item.vehicle.initial_kilometer }}</span>
+                    </p>
+                </div>
+                <span class="status-badge {% if item.is_out_of_service or item.current_usage or item.active_reservation %}status-in-use{% else %}status-available{% endif %}">
+                    {% if item.is_out_of_service %}
+                    ⛔ Kullanım Dışı
+                    {% elif item.is_waiting_handover %}
+                    ⏳ Teslim Bekleniyor
+                    {% elif item.current_usage %}
+                    🚗 Kullanımda
+                    {% elif item.active_reservation %}
+                    📅 Rezerve
+                    {% else %}
+                    ✅ Müsait
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if item.is_out_of_service %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px; border-left: 3px solid #fe5000;">
+                <p style="font-size: 0.9rem; color: #001489;">
+                    <strong>Bilgi:</strong> Araç şu anda kullanım dışıdır (servis/tamir vb). Rezervasyon yapılamaz.
+                </p>
+            </div>
+            {% elif item.current_usage %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Kullanıcı:</strong> {{ item.current_usage.user.get_full_name|default:item.current_usage.user.username }}</p>
+                {% if item.current_usage.reservation %}
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.current_usage.reservation.end_time|date:"d.m.Y H:i" }}</p>
+                {% if item.is_waiting_handover %}
+                <p style="font-size: 0.85rem; color: #fe5000; margin-top: 0.3rem;"><strong>Durum:</strong> Teslim formu bekleniyor.</p>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% elif item.active_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Rezervasyon:</strong> {{ item.active_reservation.user.get_full_name|default:item.active_reservation.user.username }}</p>
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.active_reservation.end_time|date:"d.m.Y H:i" }}</p>
+            </div>
+            {% endif %}
+
+            {% if item.nearest_today_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: rgba(0,20,137,0.08); border-radius: 4px; border-left: 3px solid #001489;">
+                <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">📅 Bugün - En Yakın Rezervasyon:</p>
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+                    <strong>{{ item.nearest_today_reservation.user.get_full_name|default:item.nearest_today_reservation.user.username }}</strong>
+                </p>
+                <p style="font-size: 0.85rem;">
+                    {{ item.nearest_today_reservation.start_time|date:"H:i" }} - {{ item.nearest_today_reservation.end_time|date:"H:i" }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if item.is_out_of_service %}
+                <span class="btn btn-secondary" style="flex: 1; min-width: 140px; opacity: 0.7; cursor: not-allowed;">Rezervasyon Yapılamaz</span>
+                {% else %}
+                <a href="{% url 'vehicle_reservation_create' item.vehicle.id %}" class="btn btn-primary" style="flex: 1; min-width: 140px;">Rezervasyon Yap</a>
+                {% endif %}
+                {% if item.show_view_reservations %}
+                <a href="{% url 'vehicle_reservation_list' item.vehicle.id %}" class="btn btn-secondary" style="flex: 1; min-width: 140px;">
+                    Rezervasyonları Gör{% if item.upcoming_reservation_count %} ({{ item.upcoming_reservation_count }}){% endif %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #001489; padding: 1.5rem; opacity: 0.9;">Ataşehir lokasyonunda araç bulunamadı.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">Dilovası</h2>
+
+    {% if dilovasi_vehicle_data %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for item in dilovasi_vehicle_data %}
+        <div class="vehicle-item-card" data-today-busy="{{ item.today_busy_spans }}" style="border: 2px solid #001489; border-radius: 8px; padding: 1.5rem; background-color: rgba(0,20,137,0.08);">
+            <div style="margin-bottom: 1rem;">
+                <img
+                    src="{% if item.vehicle.photo %}{{ item.vehicle.photo.url }}{% else %}{% static 'vehicle-placeholder.svg' %}{% endif %}"
+                    alt="{{ item.vehicle.plate }}"
+                    style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,20,137,0.2); background: #fff;"
+                    loading="lazy"
+                >
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="margin-bottom: 0.5rem;">{{ item.vehicle.plate }}</h3>
+                    <p style="color: #001489; font-size: 0.9rem; opacity: 0.85;">{{ item.vehicle.brand_model }}</p>
+                    <p style="color: #001489; font-size: 0.9rem; margin-top: 0.35rem;">
+                        <strong>Güncel KM:</strong>
+                        <span data-vehicle-km="{{ item.vehicle.id }}">{{ item.vehicle.initial_kilometer }}</span>
+                    </p>
+                </div>
+                <span class="status-badge {% if item.is_out_of_service or item.current_usage or item.active_reservation %}status-in-use{% else %}status-available{% endif %}">
+                    {% if item.is_out_of_service %}
+                    ⛔ Kullanım Dışı
+                    {% elif item.is_waiting_handover %}
+                    ⏳ Teslim Bekleniyor
+                    {% elif item.current_usage %}
+                    🚗 Kullanımda
+                    {% elif item.active_reservation %}
+                    📅 Rezerve
+                    {% else %}
+                    ✅ Müsait
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if item.is_out_of_service %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px; border-left: 3px solid #fe5000;">
+                <p style="font-size: 0.9rem; color: #001489;">
+                    <strong>Bilgi:</strong> Araç şu anda kullanım dışıdır (servis/tamir vb). Rezervasyon yapılamaz.
+                </p>
+            </div>
+            {% elif item.current_usage %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Kullanıcı:</strong> {{ item.current_usage.user.get_full_name|default:item.current_usage.user.username }}</p>
+                {% if item.current_usage.reservation %}
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.current_usage.reservation.end_time|date:"d.m.Y H:i" }}</p>
+                {% if item.is_waiting_handover %}
+                <p style="font-size: 0.85rem; color: #fe5000; margin-top: 0.3rem;"><strong>Durum:</strong> Teslim formu bekleniyor.</p>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% elif item.active_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Rezervasyon:</strong> {{ item.active_reservation.user.get_full_name|default:item.active_reservation.user.username }}</p>
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.active_reservation.end_time|date:"d.m.Y H:i" }}</p>
+            </div>
+            {% endif %}
+
+            {% if item.nearest_today_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: rgba(0,20,137,0.08); border-radius: 4px; border-left: 3px solid #001489;">
+                <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">📅 Bugün - En Yakın Rezervasyon:</p>
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+                    <strong>{{ item.nearest_today_reservation.user.get_full_name|default:item.nearest_today_reservation.user.username }}</strong>
+                </p>
+                <p style="font-size: 0.85rem;">
+                    {{ item.nearest_today_reservation.start_time|date:"H:i" }} - {{ item.nearest_today_reservation.end_time|date:"H:i" }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if item.is_out_of_service %}
+                <span class="btn btn-secondary" style="flex: 1; min-width: 140px; opacity: 0.7; cursor: not-allowed;">Rezervasyon Yapılamaz</span>
+                {% else %}
+                <a href="{% url 'vehicle_reservation_create' item.vehicle.id %}" class="btn btn-primary" style="flex: 1; min-width: 140px;">Rezervasyon Yap</a>
+                {% endif %}
+                {% if item.show_view_reservations %}
+                <a href="{% url 'vehicle_reservation_list' item.vehicle.id %}" class="btn btn-secondary" style="flex: 1; min-width: 140px;">
+                    Rezervasyonları Gör{% if item.upcoming_reservation_count %} ({{ item.upcoming_reservation_count }}){% endif %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #001489; padding: 1.5rem; opacity: 0.9;">Dilovası lokasyonunda araç bulunamadı.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">Tuzla</h2>
+
+    {% if tuzla_vehicle_data %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for item in tuzla_vehicle_data %}
+        <div class="vehicle-item-card" data-today-busy="{{ item.today_busy_spans }}" style="border: 2px solid #001489; border-radius: 8px; padding: 1.5rem; background-color: rgba(0,20,137,0.08);">
+            <div style="margin-bottom: 1rem;">
+                <img
+                    src="{% if item.vehicle.photo %}{{ item.vehicle.photo.url }}{% else %}{% static 'vehicle-placeholder.svg' %}{% endif %}"
+                    alt="{{ item.vehicle.plate }}"
+                    style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,20,137,0.2); background: #fff;"
+                    loading="lazy"
+                >
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="margin-bottom: 0.5rem;">{{ item.vehicle.plate }}</h3>
+                    <p style="color: #001489; font-size: 0.9rem; opacity: 0.85;">{{ item.vehicle.brand_model }}</p>
+                    <p style="color: #001489; font-size: 0.9rem; margin-top: 0.35rem;">
+                        <strong>Güncel KM:</strong>
+                        <span data-vehicle-km="{{ item.vehicle.id }}">{{ item.vehicle.initial_kilometer }}</span>
+                    </p>
+                </div>
+                <span class="status-badge {% if item.is_out_of_service or item.current_usage or item.active_reservation %}status-in-use{% else %}status-available{% endif %}">
+                    {% if item.is_out_of_service %}
+                    ⛔ Kullanım Dışı
+                    {% elif item.is_waiting_handover %}
+                    ⏳ Teslim Bekleniyor
+                    {% elif item.current_usage %}
+                    🚗 Kullanımda
+                    {% elif item.active_reservation %}
+                    📅 Rezerve
+                    {% else %}
+                    ✅ Müsait
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if item.is_out_of_service %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px; border-left: 3px solid #fe5000;">
+                <p style="font-size: 0.9rem; color: #001489;">
+                    <strong>Bilgi:</strong> Araç şu anda kullanım dışıdır (servis/tamir vb). Rezervasyon yapılamaz.
+                </p>
+            </div>
+            {% elif item.current_usage %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Kullanıcı:</strong> {{ item.current_usage.user.get_full_name|default:item.current_usage.user.username }}</p>
+                {% if item.current_usage.reservation %}
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.current_usage.reservation.end_time|date:"d.m.Y H:i" }}</p>
+                {% if item.is_waiting_handover %}
+                <p style="font-size: 0.85rem; color: #fe5000; margin-top: 0.3rem;"><strong>Durum:</strong> Teslim formu bekleniyor.</p>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% elif item.active_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Rezervasyon:</strong> {{ item.active_reservation.user.get_full_name|default:item.active_reservation.user.username }}</p>
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.active_reservation.end_time|date:"d.m.Y H:i" }}</p>
+            </div>
+            {% endif %}
+
+            {% if item.nearest_today_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: rgba(0,20,137,0.08); border-radius: 4px; border-left: 3px solid #001489;">
+                <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">📅 Bugün - En Yakın Rezervasyon:</p>
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+                    <strong>{{ item.nearest_today_reservation.user.get_full_name|default:item.nearest_today_reservation.user.username }}</strong>
+                </p>
+                <p style="font-size: 0.85rem;">
+                    {{ item.nearest_today_reservation.start_time|date:"H:i" }} - {{ item.nearest_today_reservation.end_time|date:"H:i" }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if item.is_out_of_service %}
+                <span class="btn btn-secondary" style="flex: 1; min-width: 140px; opacity: 0.7; cursor: not-allowed;">Rezervasyon Yapılamaz</span>
+                {% else %}
+                <a href="{% url 'vehicle_reservation_create' item.vehicle.id %}" class="btn btn-primary" style="flex: 1; min-width: 140px;">Rezervasyon Yap</a>
+                {% endif %}
+                {% if item.show_view_reservations %}
+                <a href="{% url 'vehicle_reservation_list' item.vehicle.id %}" class="btn btn-secondary" style="flex: 1; min-width: 140px;">
+                    Rezervasyonları Gör{% if item.upcoming_reservation_count %} ({{ item.upcoming_reservation_count }}){% endif %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #001489; padding: 1.5rem; opacity: 0.9;">Tuzla lokasyonunda araç bulunamadı.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">Santis Plaza</h2>
+
+    {% if santis_plaza_vehicle_data %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for item in santis_plaza_vehicle_data %}
+        <div class="vehicle-item-card" data-today-busy="{{ item.today_busy_spans }}" style="border: 2px solid #001489; border-radius: 8px; padding: 1.5rem; background-color: rgba(0,20,137,0.08);">
+            <div style="margin-bottom: 1rem;">
+                <img
+                    src="{% if item.vehicle.photo %}{{ item.vehicle.photo.url }}{% else %}{% static 'vehicle-placeholder.svg' %}{% endif %}"
+                    alt="{{ item.vehicle.plate }}"
+                    style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,20,137,0.2); background: #fff;"
+                    loading="lazy"
+                >
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="margin-bottom: 0.5rem;">{{ item.vehicle.plate }}</h3>
+                    <p style="color: #001489; font-size: 0.9rem; opacity: 0.85;">{{ item.vehicle.brand_model }}</p>
+                    <p style="color: #001489; font-size: 0.9rem; margin-top: 0.35rem;">
+                        <strong>Güncel KM:</strong>
+                        <span data-vehicle-km="{{ item.vehicle.id }}">{{ item.vehicle.initial_kilometer }}</span>
+                    </p>
+                </div>
+                <span class="status-badge {% if item.is_out_of_service or item.current_usage or item.active_reservation %}status-in-use{% else %}status-available{% endif %}">
+                    {% if item.is_out_of_service %}
+                    ⛔ Kullanım Dışı
+                    {% elif item.is_waiting_handover %}
+                    ⏳ Teslim Bekleniyor
+                    {% elif item.current_usage %}
+                    🚗 Kullanımda
+                    {% elif item.active_reservation %}
+                    📅 Rezerve
+                    {% else %}
+                    ✅ Müsait
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if item.is_out_of_service %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px; border-left: 3px solid #fe5000;">
+                <p style="font-size: 0.9rem; color: #001489;">
+                    <strong>Bilgi:</strong> Araç şu anda kullanım dışıdır (servis/tamir vb). Rezervasyon yapılamaz.
+                </p>
+            </div>
+            {% elif item.current_usage %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Kullanıcı:</strong> {{ item.current_usage.user.get_full_name|default:item.current_usage.user.username }}</p>
+                {% if item.current_usage.reservation %}
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.current_usage.reservation.end_time|date:"d.m.Y H:i" }}</p>
+                {% if item.is_waiting_handover %}
+                <p style="font-size: 0.85rem; color: #fe5000; margin-top: 0.3rem;"><strong>Durum:</strong> Teslim formu bekleniyor.</p>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% elif item.active_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: white; border-radius: 4px;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;"><strong>Rezervasyon:</strong> {{ item.active_reservation.user.get_full_name|default:item.active_reservation.user.username }}</p>
+                <p style="font-size: 0.9rem;"><strong>Bitiş:</strong> {{ item.active_reservation.end_time|date:"d.m.Y H:i" }}</p>
+            </div>
+            {% endif %}
+
+            {% if item.nearest_today_reservation %}
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background-color: rgba(0,20,137,0.08); border-radius: 4px; border-left: 3px solid #001489;">
+                <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">📅 Bugün - En Yakın Rezervasyon:</p>
+                <p style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+                    <strong>{{ item.nearest_today_reservation.user.get_full_name|default:item.nearest_today_reservation.user.username }}</strong>
+                </p>
+                <p style="font-size: 0.85rem;">
+                    {{ item.nearest_today_reservation.start_time|date:"H:i" }} - {{ item.nearest_today_reservation.end_time|date:"H:i" }}
+                </p>
+            </div>
+            {% endif %}
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if item.is_out_of_service %}
+                <span class="btn btn-secondary" style="flex: 1; min-width: 140px; opacity: 0.7; cursor: not-allowed;">Rezervasyon Yapılamaz</span>
+                {% else %}
+                <a href="{% url 'vehicle_reservation_create' item.vehicle.id %}" class="btn btn-primary" style="flex: 1; min-width: 140px;">Rezervasyon Yap</a>
+                {% endif %}
+                {% if item.show_view_reservations %}
+                <a href="{% url 'vehicle_reservation_list' item.vehicle.id %}" class="btn btn-secondary" style="flex: 1; min-width: 140px;">
+                    Rezervasyonları Gör{% if item.upcoming_reservation_count %} ({{ item.upcoming_reservation_count }}){% endif %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #001489; padding: 1.5rem; opacity: 0.9;">Santis Plaza lokasyonunda araç bulunamadı.</p>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var endpoint = "{% url 'vehicle_kilometer_status' %}";
+        var kmElements = document.querySelectorAll('[data-vehicle-km]');
+        if (!kmElements.length) return;
+
+        function refreshKilometers() {
+            fetch(endpoint, { credentials: 'same-origin' })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (!data || !data.vehicles) return;
+                    kmElements.forEach(function (element) {
+                        var vehicleId = element.getAttribute('data-vehicle-km');
+                        if (Object.prototype.hasOwnProperty.call(data.vehicles, vehicleId)) {
+                            element.textContent = data.vehicles[vehicleId];
+                        }
+                    });
+                })
+                .catch(function () {
+                    return null;
+                });
+        }
+
+        refreshKilometers();
+        window.setInterval(refreshKilometers, 10000);
+    })();
+
+    (function () {
+        var cards = document.querySelectorAll('.vehicle-item-card');
+        if (!cards.length) return;
+        var tip = document.createElement('div');
+        tip.style.cssText = 'position:fixed;z-index:2500;display:none;padding:6px 10px;border-radius:8px;background:rgba(34,45,74,.94);color:#fff;font-size:12px;font-weight:600;pointer-events:none;box-shadow:0 8px 18px rgba(0,0,0,.28);';
+        document.body.appendChild(tip);
+
+        function toTimeLabel(totalMinutes) {
+            var h = Math.floor(totalMinutes / 60);
+            var m = totalMinutes % 60;
+            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        }
+
+        cards.forEach(function (card) {
+            var raw = (card.getAttribute('data-today-busy') || '').trim();
+            if (!raw) return;
+
+            var spans = raw.split(';').map(function (pair) {
+                var parts = pair.split('-');
+                var start = parseInt(parts[0] || '0', 10);
+                var end = parseInt(parts[1] || '0', 10);
+                return {
+                    start: Math.max(0, Math.min(1440, start)),
+                    end: Math.max(0, Math.min(1440, end)),
+                };
+            }).filter(function (span) {
+                return span.end > span.start;
+            });
+            if (!spans.length) return;
+            var nowMinutes = (new Date()).getHours() * 60 + (new Date()).getMinutes();
+
+            var timeline = document.createElement('div');
+            timeline.className = 'vehicle-mini-timeline is-collapsed';
+
+            var header = document.createElement('div');
+            header.className = 'vehicle-mini-timeline-header';
+            var title = document.createElement('span');
+            title.className = 'vehicle-mini-timeline-title';
+            title.textContent = 'Bugün ki dolu saatleri görüntüle';
+            var arrow = document.createElement('span');
+            arrow.className = 'vehicle-mini-timeline-arrow';
+            arrow.textContent = '▾';
+            header.appendChild(title);
+            header.appendChild(arrow);
+            timeline.appendChild(header);
+
+            var body = document.createElement('div');
+            body.className = 'vehicle-mini-timeline-body';
+
+            var track = document.createElement('div');
+            track.className = 'vehicle-mini-timeline-track';
+            spans.forEach(function (span) {
+                var segment = document.createElement('span');
+                segment.className = 'vehicle-mini-timeline-segment';
+                segment.style.left = ((span.start / 1440) * 100).toFixed(2) + '%';
+                segment.style.width = (((span.end - span.start) / 1440) * 100).toFixed(2) + '%';
+                segment.style.minWidth = '16px';
+                segment.style.cursor = 'pointer';
+                segment.style.background = span.end <= nowMinutes ? 'rgba(20, 104, 61, 0.92)' : 'rgba(153, 27, 27, 0.92)';
+                segment.dataset.range = toTimeLabel(span.start) + ' - ' + toTimeLabel(span.end);
+                segment.addEventListener('mouseenter', function () { tip.textContent = segment.dataset.range; tip.style.display = 'block'; });
+                segment.addEventListener('mousemove', function (e) { tip.style.left = (e.clientX + 12) + 'px'; tip.style.top = (e.clientY - 34) + 'px'; });
+                segment.addEventListener('mouseleave', function () { tip.style.display = 'none'; });
+                track.appendChild(segment);
+            });
+            body.appendChild(track);
+
+            var meta = document.createElement('div');
+            meta.className = 'vehicle-mini-timeline-meta';
+            meta.innerHTML = '<span>00:00</span><span>24:00</span>';
+            body.appendChild(meta);
+            timeline.appendChild(body);
+
+            header.addEventListener('click', function () {
+                timeline.classList.toggle('is-collapsed');
+            });
+
+            var actionRow = card.querySelector('div[style*="display: flex"][style*="gap: 0.5rem"][style*="flex-wrap: wrap"]');
+            if (actionRow && actionRow.parentNode) {
+                actionRow.parentNode.insertBefore(timeline, actionRow);
+            } else {
+                card.appendChild(timeline);
+            }
+        });
+    })();
+</script>
+{% endblock %}
+

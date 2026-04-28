@@ -1,0 +1,554 @@
+.user-dark {
+    color: #e6e9f2;
+    background-color: #060912;
+}
+
+body.user-theme-enabled .navbar-content {
+    grid-template-columns: 1fr auto 1fr;
+}
+
+body.user-theme-enabled .navbar-title {
+    justify-self: center;
+    text-align: center;
+}
+
+body.user-theme-enabled .navbar-links {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.9rem;
+    width: auto;
+    max-width: calc(100% - 12rem);
+}
+
+body.user-theme-enabled .theme-toggle-nav {
+    position: fixed !important;
+    top: 1.5rem !important;
+    right: 10rem !important;
+    z-index: 2100 !important;
+}
+
+body.user-theme-enabled .navbar-links > a {
+    display: inline-flex;
+    align-items: center;
+    height: 2rem;
+    white-space: nowrap;
+}
+
+body.user-theme-enabled .user-dropdown,
+body.user-theme-enabled .theme-toggle-nav {
+    flex-shrink: 0;
+}
+
+body.user-theme-enabled .user-dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    height: 2rem;
+}
+
+@media (max-width: 1700px) {
+    body.user-theme-enabled .navbar-content {
+        grid-template-columns: 1fr;
+    }
+
+    body.user-theme-enabled .navbar-title {
+        text-align: center;
+        width: 100%;
+    }
+
+    body.user-theme-enabled .navbar-links {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        row-gap: 0.35rem;
+    }
+
+    body.user-theme-enabled .theme-toggle-nav {
+        position: fixed !important;
+        top: 0.95rem !important;
+        right: 0.55rem !important;
+        z-index: 2100 !important;
+        transform: scale(0.92);
+        transform-origin: top right;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 1900px) and (min-width: 1701px) {
+    body.user-theme-enabled .navbar-title {
+        font-size: 1.35rem;
+    }
+
+    body.user-theme-enabled .navbar-links {
+        gap: 0.6rem;
+        padding-right: 7rem;
+        flex-wrap: wrap;
+        row-gap: 0.35rem;
+    }
+
+    body.user-theme-enabled .user-dropdown-trigger {
+        padding-left: 0.45rem;
+        padding-right: 0.45rem;
+    }
+}
+
+.user-dark .bg-video {
+    filter: brightness(0.78) contrast(1.12) saturate(1.08);
+}
+
+.user-dark .bg-video-overlay {
+    background:
+        radial-gradient(circle at 18% 12%, rgba(89, 132, 255, 0.22), transparent 35%),
+        radial-gradient(circle at 82% 84%, rgba(255, 140, 78, 0.17), transparent 40%),
+        rgba(7, 11, 24, 0.64) !important;
+}
+
+.user-dark .navbar {
+    background: linear-gradient(92deg, rgba(8, 17, 44, 0.96), rgba(11, 28, 74, 0.94)) !important;
+    border-bottom: 1px solid rgba(120, 161, 255, 0.28) !important;
+    box-shadow: 0 10px 24px rgba(1, 2, 8, 0.45) !important;
+}
+
+.user-dark .navbar.navbar-soft {
+    background-color: rgba(11, 24, 58, 0.86) !important;
+    background-image: none !important;
+}
+
+.user-dark .navbar-title,
+.user-dark .navbar-links a,
+.user-dark .user-dropdown-trigger,
+.user-dark .user-info {
+    color: #eef2ff !important;
+}
+
+.user-dark .navbar-links a:hover,
+.user-dark .user-dropdown-trigger:hover {
+    background-color: rgba(255, 131, 62, 0.92) !important;
+}
+
+.user-dark .card {
+    background: linear-gradient(145deg, rgba(14, 23, 48, 0.84), rgba(8, 14, 33, 0.84));
+    border: 1px solid rgba(111, 148, 234, 0.35);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.36);
+    color: #edf1ff;
+    backdrop-filter: blur(6px);
+}
+
+.user-dark .form-group label {
+    color: #dce5ff;
+}
+
+.user-dark .form-control {
+    background-color: rgba(8, 16, 36, 0.84);
+    border: 1px solid rgba(128, 162, 240, 0.45);
+    color: #f3f6ff;
+}
+
+.user-dark .form-control::placeholder {
+    color: rgba(226, 235, 255, 0.56);
+}
+
+.user-dark .form-control:focus {
+    border-color: #ff8a4a;
+    box-shadow: 0 0 0 3px rgba(255, 138, 74, 0.24);
+}
+
+.user-dark .btn-primary,
+.user-dark .btn-success,
+.user-dark .btn-danger {
+    background: linear-gradient(90deg, #ff6c37, #ff8f42);
+    color: #fff;
+}
+
+.user-dark .btn-primary:hover,
+.user-dark .btn-success:hover,
+.user-dark .btn-danger:hover {
+    background: linear-gradient(90deg, #ff7d4f, #ff9b55);
+}
+
+.user-dark .btn-secondary {
+    background: #22366d;
+}
+
+.user-dark .btn-secondary:hover {
+    background: #2a4488;
+}
+
+.user-dark table th {
+    background-color: rgba(46, 76, 150, 0.35);
+    color: #ecf2ff;
+}
+
+.user-dark table td {
+    border-bottom-color: rgba(118, 154, 236, 0.24);
+}
+
+.user-dark .message.success {
+    background-color: rgba(54, 128, 94, 0.2);
+    border-color: rgba(111, 227, 171, 0.36);
+    color: #d8fbe9;
+}
+
+.user-dark .message.error {
+    background-color: rgba(174, 72, 58, 0.2);
+    border-color: rgba(255, 140, 120, 0.4);
+    color: #ffe4df;
+}
+
+.user-dark .message.info {
+    background-color: rgba(63, 96, 180, 0.22);
+    border-color: rgba(124, 167, 255, 0.34);
+    color: #deebff;
+}
+
+.user-dark .status-available {
+    background-color: rgba(96, 140, 255, 0.22);
+    color: #d8e7ff;
+}
+
+.user-dark .status-in-use {
+    background-color: rgba(255, 127, 88, 0.24);
+    color: #ffe0d2;
+}
+
+.user-dark .user-dropdown-menu {
+    background: rgba(9, 16, 35, 0.98) !important;
+    border-color: rgba(125, 159, 234, 0.38) !important;
+}
+
+.user-dark .user-dropdown-menu a {
+    color: #e7eeff !important;
+}
+
+.user-dark .user-dropdown-menu a:hover {
+    background-color: rgba(64, 98, 176, 0.35) !important;
+}
+
+.user-dark .theme-toggle {
+    color: #f2f6ff;
+}
+
+.user-dark .theme-toggle:hover {
+    transform: translateY(-1px);
+}
+
+.user-dark .theme-option {
+    color: rgba(215, 228, 255, 0.55);
+}
+
+.user-dark .theme-toggle.is-dark .theme-option-dark {
+    color: rgba(244, 250, 255, 0.98);
+}
+
+.user-dark .theme-toggle:not(.is-dark) .theme-option-light {
+    color: rgba(244, 250, 255, 0.98);
+}
+
+.user-dark .floating-theme-toggle-wrap {
+    background: rgba(8, 16, 38, 0.46);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Login pages: heading and password eye visibility */
+.user-dark .login-page-title {
+    color: #eef4ff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.user-dark .password-peek-btn {
+    color: #dde8ff;
+    opacity: 1;
+}
+
+.user-dark .password-peek-btn:hover {
+    color: #ffffff;
+}
+
+/* Vehicle list: improve text contrast in dark cards */
+.user-dark .vehicle-list-page h2,
+.user-dark .vehicle-list-page h3,
+.user-dark .vehicle-list-page p,
+.user-dark .vehicle-list-page strong,
+.user-dark .vehicle-list-page span[data-vehicle-km] {
+    color: #001489 !important;
+}
+
+.user-dark .vehicle-list-page span.status-badge.status-in-use {
+    background-color: rgba(154, 30, 30, 0.62) !important;
+    color: #f3f6ff !important;
+}
+
+.user-dark .vehicle-list-page span.status-badge.status-available {
+    background-color: rgba(24, 128, 68, 0.58) !important;
+    color: #f3f6ff !important;
+}
+
+.user-dark .vehicle-list-page .status-badge {
+    font-weight: 500;
+    text-shadow: none;
+}
+
+.user-dark .vehicle-list-page .status-badge,
+.user-dark .vehicle-list-page .status-badge * {
+    color: inherit !important;
+}
+
+/* Vehicle list: info boxes (inline white backgrounds) -> glass */
+.vehicle-list-page div[style*="background-color: white"] {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(235, 244, 255, 0.44)) !important;
+    border: none !important;
+    border-left: none !important;
+    box-shadow:
+        0 12px 26px rgba(0, 0, 0, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
+    backdrop-filter: blur(16px) saturate(1.18);
+    -webkit-backdrop-filter: blur(16px) saturate(1.18);
+}
+
+.user-dark .vehicle-list-page div[style*="background-color: white"] {
+    background-color: rgba(128, 98, 22, 0.66) !important;
+    background-image: none !important;
+    border: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(9px) saturate(1.12);
+    -webkit-backdrop-filter: blur(9px) saturate(1.12);
+    color: #f3f6ff !important;
+}
+
+/* Durum: Teslim formu bekleniyor -> dark orange, high transparency */
+.user-dark .vehicle-list-page div[style*="background-color: white"]:has(p[style*="color: #fe5000"]) {
+    background-color: rgba(148, 74, 17, 0.72) !important;
+}
+
+/* Durum: Kullanım Dışı -> dark red, high transparency */
+.user-dark .vehicle-list-page div[style*="background-color: white"][style*="border-left: 3px solid #fe5000"] {
+    background-color: rgba(126, 25, 25, 0.74) !important;
+}
+
+.user-dark .vehicle-list-page div[style*="background-color: white"] p,
+.user-dark .vehicle-list-page div[style*="background-color: white"] strong {
+    color: #f3f6ff !important;
+}
+
+/* Vehicle list: "En Yakın Rezervasyon" box -> force old look */
+.vehicle-list-page div[style*="background-color: rgba(0,20,137,0.08)"] {
+    background-color: rgba(0, 20, 137, 0.08) !important;
+    background-image: none !important;
+    border: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.user-dark .vehicle-list-page div[style*="background-color: rgba(0,20,137,0.08)"] {
+    background-color: rgba(0, 20, 137, 0.08) !important;
+    background-image: none !important;
+    border: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.user-dark .vehicle-list-page div[style*="background-color: rgba(0,20,137,0.08)"] p,
+.user-dark .vehicle-list-page div[style*="background-color: rgba(0,20,137,0.08)"] strong {
+    color: #001489 !important;
+}
+
+/* Reservation form: datetime picker icon visibility */
+.user-dark input[type="datetime-local"] {
+    color-scheme: dark;
+}
+
+.user-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0) invert(1) !important;
+    opacity: 1 !important;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.user-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    background: transparent;
+}
+
+/* User agreement modal in dark mode */
+.user-dark .agreement-modal-content {
+    background: linear-gradient(145deg, rgba(14, 23, 48, 0.98), rgba(8, 14, 33, 0.98));
+    border-color: rgba(116, 149, 225, 0.45);
+    color: #e7eeff;
+}
+
+.user-dark .agreement-modal-header {
+    border-bottom-color: rgba(116, 149, 225, 0.28);
+}
+
+.user-dark .agreement-modal-header h2,
+.user-dark .agreement-modal-close {
+    color: #eaf1ff;
+}
+
+.user-dark .agreement-scroll-container {
+    background: rgba(6, 18, 44, 0.92);
+    border-color: rgba(110, 145, 225, 0.42);
+}
+
+.user-dark .agreement-text p,
+.user-dark .agreement-checkbox-label,
+.user-dark .agreement-checkbox-label span {
+    color: #e0eaff !important;
+}
+
+/* Password change page */
+.user-dark .password-change-panel {
+    background: linear-gradient(145deg, rgba(14, 23, 48, 0.88), rgba(8, 14, 33, 0.9)) !important;
+    border: 1px solid rgba(111, 148, 234, 0.42);
+    color: #edf3ff;
+}
+
+.user-dark .password-change-title {
+    color: #eef4ff;
+}
+
+.user-dark .password-change-panel label {
+    color: #dfe9ff;
+}
+
+.user-dark .password-change-panel input[type="password"],
+.user-dark .password-change-panel input[type="text"] {
+    background: rgba(8, 16, 36, 0.94);
+    border-color: rgba(128, 162, 240, 0.55);
+    color: #f2f6ff;
+}
+
+.user-dark .password-change-panel .password-peek-btn {
+    color: #eaf1ff;
+    opacity: 1;
+}
+
+.user-dark .password-change-panel .password-peek-btn:hover {
+    color: #ffffff;
+}
+
+.user-dark .password-change-panel .btn-secondary {
+    background: #2c3f78;
+}
+
+/* =========================================================
+   Global responsive layer (all user-facing pages)
+   ========================================================= */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+
+    .vehicle-list-page .card {
+        padding: 1rem !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .container > div[style*="max-width: 400px"],
+    .container > div[style*="max-width: 480px"],
+    .container > div[style*="max-width: 600px"],
+    .container > div[style*="max-width: 620px"],
+    .container > div[style*="max-width: 700px"],
+    .container > div[style*="max-width: 720px"] {
+        max-width: 94vw !important;
+        margin: 1rem auto !important;
+    }
+
+    .password-change-wrapper {
+        max-width: 94vw !important;
+        margin: 1rem auto !important;
+    }
+
+    .container form div[style*="display: flex"][style*="gap"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .container form div[style*="display: flex"][style*="gap"] .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        text-align: center;
+    }
+
+    .vehicle-list-page div[style*="repeat(auto-fill, minmax(300px, 1fr))"] {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .vehicle-list-page div[style*="border: 2px solid #001489"][style*="padding: 1.5rem"] {
+        padding: 1rem !important;
+    }
+
+    .vehicle-list-page div[style*="justify-content: space-between"][style*="align-items: start"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.45rem !important;
+    }
+
+    .vehicle-list-page div[style*="display: flex"][style*="gap: 0.5rem"][style*="flex-wrap: wrap"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .vehicle-list-page div[style*="display: flex"][style*="gap: 0.5rem"][style*="flex-wrap: wrap"] .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        text-align: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+
+    .card {
+        padding: 0.9rem;
+    }
+
+    .vehicle-list-page-title {
+        font-size: 1.7rem !important;
+        line-height: 1.2;
+    }
+
+    .vehicle-list-page div[style*="width: 100%; height: 140px"] {
+        height: 150px !important;
+    }
+
+    .table-responsive table {
+        min-width: 640px;
+    }
+
+    body.user-theme-enabled .navbar {
+        padding-bottom: 2.1rem;
+    }
+
+    body.user-theme-enabled .theme-toggle-nav {
+        position: absolute !important;
+        top: auto !important;
+        bottom: 0.2rem !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) scale(0.9) !important;
+        transform-origin: center bottom;
+    }
+
+    .floating-theme-toggle-wrap {
+        top: 4.4rem !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%);
+        padding: 0.3rem 0.45rem;
+    }
+}

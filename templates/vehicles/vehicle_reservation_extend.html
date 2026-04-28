@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Rezervasyon Uzat - Araç Havuzu Yönetim Sistemi{% endblock %}
+
+{% block content %}
+<div style="max-width: 620px; margin: 2rem auto;">
+    <div class="card">
+        <h2 style="margin-bottom: 1.25rem;">Rezervasyon Uzat</h2>
+
+        <div style="background-color: rgba(0,20,137,0.06); padding: 1rem; border-radius: 4px; margin-bottom: 1.2rem; border: 1px solid rgba(0,20,137,0.15);">
+            <p><strong>Araç:</strong> {{ reservation.vehicle.plate }} - {{ reservation.vehicle.brand_model }}</p>
+            <p><strong>Uzatma Başlangıcı:</strong> {{ reservation.end_time|date:"d.m.Y H:i" }}</p>
+            <p style="font-size: 0.9rem; opacity: 0.85;">Yeni rezervasyon bu başlangıç zamanından itibaren oluşturulacaktır.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.new_end_time.id_for_label }}">{{ form.new_end_time.label }}</label>
+                {{ form.new_end_time }}
+                {% if form.new_end_time.errors %}
+                <div style="color: #fe5000; font-size: 0.9rem; margin-top: 0.25rem;">{{ form.new_end_time.errors }}</div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div style="color: #fe5000; margin-bottom: 1rem;">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-success">Rezervasyonu Uzat</button>
+                <a href="{% url 'vehicle_reservation_list' reservation.vehicle.id %}" class="btn btn-secondary">Geri Dön</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
