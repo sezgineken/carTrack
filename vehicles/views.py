@@ -121,7 +121,8 @@ def start_due_reservations():
     due_reservations = VehicleReservation.objects.filter(
         is_active=True,
         start_time__lte=now,
-        end_time__gte=now
+        # Important: user might log in after reservation already ended.
+        # We still need a usage row so the mandatory drop-off form can be enforced.
     ).select_related('vehicle', 'user')
 
     for reservation in due_reservations:
