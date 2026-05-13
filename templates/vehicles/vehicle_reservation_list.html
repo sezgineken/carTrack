@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Rezervasyonlar - Araç Havuzu Yönetim Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reservation-status-flat {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        font-weight: 700;
+    }
+    .reservation-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+        margin-left: 10px;
+    }
+    .reservation-actions form {
+        margin: 0;
+    }
+    .reservation-action-btn {
+        width: 132px;
+        min-height: 32px;
+        padding: 0.3rem 0.55rem !important;
+        font-size: 0.82rem !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        border-radius: 6px;
+    }
+    .reservation-action-btn.is-cancel {
+        width: 88px;
+        background-color: #d9534f !important;
+        color: #fff !important;
+    }
+    .reservation-action-btn.is-cancel:hover {
+        background-color: #c7433f !important;
+    }
+    .reservation-action-btn.is-finish {
+        width: 130px;
+        background-color: #d9534f !important;
+        color: #fff !important;
+    }
+    .reservation-action-btn.is-finish:hover {
+        background-color: #c7433f !important;
+    }
+    .reservation-action-btn.is-extend {
+        background-color: #2e8b57 !important;
+        color: #fff !important;
+    }
+    .reservation-action-btn.is-extend:hover {
+        background-color: #26764a !important;
+    }
+    .reservation-back-btn {
+        background: linear-gradient(180deg, #4162ad 0%, #2f4c93 100%) !important;
+        border: 1px solid rgba(180, 201, 255, 0.55);
+        color: #fff !important;
+        border-radius: 14px !important;
+        box-shadow: 0 8px 16px rgba(18, 34, 79, 0.28);
+        font-weight: 700;
+        letter-spacing: 0.1px;
+    }
+    .reservation-back-btn:hover {
+        background: linear-gradient(180deg, #4d71c1 0%, #35579f 100%) !important;
+        transform: translateY(-1px);
+    }
+    .reservation-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .reservation-page-header h1 {
+        font-size: 2rem;
+    }
+    .reservation-table-title {
+        font-size: 1.68rem;
+        letter-spacing: 0.1px;
+    }
+    .reservation-list-table th,
+    .reservation-list-table td {
+        font-size: 0.9rem;
+    }
+    .reservation-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 2400;
+        display: none;
+    }
+    .reservation-modal.is-open {
+        display: block;
+    }
+    .reservation-modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(6, 11, 28, 0.56);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .reservation-modal-dialog {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 420px;
+        width: calc(100% - 22px);
+        background: linear-gradient(180deg, rgba(19, 31, 68, 0.96) 0%, rgba(15, 25, 56, 0.96) 100%);
+        border: 1px solid rgba(130, 165, 255, 0.28);
+        border-radius: 14px;
+        box-shadow: 0 20px 48px rgba(3, 9, 28, 0.56);
+        padding: 1rem;
+    }
+    .reservation-modal-title {
+        font-size: 1.03rem;
+        font-weight: 700;
+        color: #e6eeff;
+        margin-bottom: 0.45rem;
+    }
+    .reservation-modal-message {
+        font-size: 0.92rem;
+        color: #b7c8f2;
+        line-height: 1.35;
+        margin-bottom: 0.95rem;
+    }
+    .reservation-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.55rem;
+    }
+    .reservation-modal-btn {
+        min-width: 102px;
+        min-height: 36px;
+        padding: 0.32rem 0.82rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-weight: 700;
+    }
+    .reservation-modal-btn.cancel {
+        background: rgba(203, 220, 255, 0.16);
+        color: #d7e4ff;
+        border-color: rgba(173, 197, 255, 0.35);
+    }
+    .reservation-modal-btn.confirm {
+        background: #cf4f4b;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reservation-page-header">
+    <h1 style="margin: 0;">Rezervasyonlar</h1>
+    <a href="{% url 'vehicle_list' %}" class="btn btn-secondary reservation-back-btn">← Araç Listesine Dön</a>
+</div>
+
+<div class="card">
+    <h2 class="reservation-table-title" style="margin-bottom: 1rem;">Aktif Rezervasyonlar - {{ vehicle.brand_model }} - {{ vehicle.plate }}</h2>
+    
+    {% if reservations %}
+    <div class="table-responsive">
+    <table class="reservation-list-table">
+        <thead>
+            <tr>
+                <th>Kullanıcı</th>
+                <th>Başlangıç</th>
+                <th>Bitiş</th>
+                <th>Amaç</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.user.get_full_name|default:reservation.user.username }}</td>
+                <td>{{ reservation.start_time|date:"d.m.Y H:i" }}</td>
+                <td>{{ reservation.end_time|date:"d.m.Y H:i" }}</td>
+                <td>{{ reservation.purpose|default:"-" }}</td>
+                <td>
+                    {% if reservation.is_current %}
+                    <span class="status-badge status-in-use reservation-status-flat">🟢 Aktif</span>
+                    {% elif reservation.is_upcoming %}
+                    <span class="status-badge status-available reservation-status-flat">📅 Yaklaşan</span>
+                    {% else %}
+                    <span class="status-badge status-available reservation-status-flat">✅ Geçmiş</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if reservation.user == request.user and reservation.is_upcoming %}
+                    <div class="reservation-actions">
+                        <form method="post" action="{% url 'vehicle_reservation_cancel' reservation.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn reservation-action-btn is-cancel js-cancel-trigger">İptal</button>
+                        </form>
+                        <a href="{% url 'vehicle_reservation_extend' reservation.id %}" class="btn reservation-action-btn is-extend">Rezervasyonu Uzat</a>
+                    </div>
+                    {% elif reservation.user == request.user and reservation.is_current %}
+                    <div class="reservation-actions">
+                        <form method="post" action="{% url 'vehicle_reservation_finish' reservation.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn reservation-action-btn is-finish" onclick="return confirm('Rezervasyonu bitirip teslim formuna geçmek istediğinizden emin misiniz?');">Rezervasyonu Bitir</button>
+                        </form>
+                        <a href="{% url 'vehicle_reservation_extend' reservation.id %}" class="btn reservation-action-btn is-extend">Rezervasyonu Uzat</a>
+                    </div>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #001489; padding: 2rem; opacity: 0.9;">Bu araç için rezervasyon bulunmamaktadır.</p>
+    {% endif %}
+</div>
+
+<div id="cancelReservationModal" class="reservation-modal" aria-hidden="true">
+    <div class="reservation-modal-backdrop"></div>
+    <div class="reservation-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="cancelReservationTitle">
+        <div id="cancelReservationTitle" class="reservation-modal-title">Rezervasyonu iptal et</div>
+        <div class="reservation-modal-message">Bu rezervasyonu iptal etmek istediğinizden emin misiniz?</div>
+        <div class="reservation-modal-actions">
+            <button type="button" class="reservation-modal-btn cancel" id="cancelReservationClose">Vazgeç</button>
+            <button type="button" class="reservation-modal-btn confirm" id="cancelReservationConfirm">İptal Et</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var modal = document.getElementById('cancelReservationModal');
+        if (!modal) return;
+
+        var confirmBtn = document.getElementById('cancelReservationConfirm');
+        var closeBtn = document.getElementById('cancelReservationClose');
+        var backdrop = modal.querySelector('.reservation-modal-backdrop');
+        var currentForm = null;
+
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            currentForm = null;
+        }
+
+        function openModal(formEl) {
+            currentForm = formEl;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        document.querySelectorAll('.js-cancel-trigger').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                var form = button.closest('form');
+                if (!form) return;
+                openModal(form);
+            });
+        });
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function () {
+                if (currentForm) currentForm.submit();
+                closeModal();
+            });
+        }
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (backdrop) backdrop.addEventListener('click', closeModal);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') closeModal();
+        });
+    })();
+</script>
+{% endblock %}
+

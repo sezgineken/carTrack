@@ -1,0 +1,25 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+  {% if original and original.pk %}
+    <div style="margin-bottom: 12px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; border-bottom: 1px solid var(--hairline-color, #dcdcdc); padding-bottom: 10px;">
+        <a
+          href="{% url 'admin:vehicles_vehicle_change' original.pk %}"
+          style="text-decoration:none; padding:8px 12px; border-radius:999px; font-weight:600; background:#001489; color:#fff;"
+        >
+          Araç
+        </a>
+        <a
+          href="{% url 'admin:vehicles_vehicle_history' original.pk %}"
+          style="text-decoration:none; padding:8px 12px; border-radius:999px; font-weight:600; background:rgba(0,20,137,0.08); color:#001489;"
+        >
+          Araç Tarihçesi
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+  {{ block.super }}
+{% endblock %}
+

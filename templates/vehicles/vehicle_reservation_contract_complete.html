@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Rezervasyon Tamamlandı{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 2rem auto;">
+    <div class="card" style="border-left: 4px solid #fe5000;">
+        <h2 style="margin-bottom: 1rem;">Rezervasyon Oluşturuldu</h2>
+        <p style="margin-bottom: 0.75rem;">
+            Lütfen indirilen dosyanın çıktısını alınız!
+        </p>
+        <p style="margin-bottom: 1rem;">
+            <strong><span id="countdown">5</span></strong> saniye sonra anasayfaya yönlendiriliyorsunuz.
+        </p>
+        <p style="font-size: 0.9rem; opacity: 0.85;">
+            İndirme başlamazsa
+            <a href="{% url 'vehicle_reservation_contract_download' reservation.id %}" class="btn btn-secondary" style="padding: 0.35rem 0.8rem; font-size: 0.85rem;">PDF İndir</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var downloadUrl = "{% url 'vehicle_reservation_contract_download' reservation.id %}";
+        var redirectUrl = "{% url 'vehicle_list' %}";
+        var countdownEl = document.getElementById('countdown');
+        var remaining = 5;
+
+        // Trigger download via hidden iframe so current page can show countdown.
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = downloadUrl;
+        document.body.appendChild(iframe);
+
+        var timer = window.setInterval(function () {
+            remaining -= 1;
+            if (countdownEl) {
+                countdownEl.textContent = String(remaining);
+            }
+            if (remaining <= 0) {
+                window.clearInterval(timer);
+                window.location.href = redirectUrl;
+            }
+        }, 1000);
+    })();
+</script>
+{% endblock %}

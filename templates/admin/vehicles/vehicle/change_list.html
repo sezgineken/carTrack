@@ -1,0 +1,63 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+{% if ownership_tabs %}
+<div style="margin: 0 0 12px 0; display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap;">
+    {% for tab in ownership_tabs %}
+    <a href="{{ tab.url }}" style="
+        display: inline-block;
+        margin-right: 0;
+        padding: 8px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        border: 1px solid #d9d9d9;
+        {% if active_ownership_tab == tab.key %}
+        background: #001489;
+        color: #fff;
+        border-color: #001489;
+        {% else %}
+        background: #fff;
+        color: #222;
+        {% endif %}
+    ">{{ tab.label }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{{ block.super }}
+<a id="vehicle-export-btn" href="{% url 'admin:vehicles_vehicle_export' %}" style="
+    display: inline-block;
+    margin-left: 16px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid #1f8f4d;
+    background: #28a745;
+    color: #fff;
+    font-weight: 600;
+">Dışarı Aktar</a>
+<script>
+    (function() {
+        var button = document.getElementById('vehicle-export-btn');
+        if (!button) return;
+        var search = window.location.search || '';
+        if (search) {
+            var exportUrl = new URL(button.href, window.location.origin);
+            var currentParams = new URLSearchParams(search);
+            currentParams.forEach(function(value, key) {
+                exportUrl.searchParams.set(key, value);
+            });
+            button.href = exportUrl.toString();
+        }
+        var actions = document.querySelector('#changelist-form .actions');
+        if (!actions) return;
+
+        actions.style.display = 'flex';
+        actions.style.alignItems = 'center';
+        actions.style.flexWrap = 'wrap';
+        button.style.marginLeft = 'auto';
+        button.style.marginRight = '8px';
+        button.style.order = '99';
+        actions.appendChild(button);
+    })();
+</script>
+{% endblock %}

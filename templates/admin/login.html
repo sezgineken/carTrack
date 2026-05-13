@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Giriş Yap - Araç Takip Yönetim Sistemi{% endblock %}
+
+{% block extra_css %}
+<style>
+    html,
+    body {
+        overflow: hidden;
+    }
+
+    .login-wrapper {
+        position: relative;
+    }
+
+    .login-page-title {
+        text-align: center;
+        margin: 1rem auto 0.85rem auto;
+        color: #001489;
+        font-weight: 700;
+        font-size: 1.9rem;
+    }
+
+    .login-panel {
+        background: rgba(255, 255, 255, 0.34) !important;
+        border: 1px solid rgba(0, 20, 137, 0.35);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(3px);
+    }
+
+    .user-login-button {
+        display: inline-block;
+        margin-top: 0.8rem;
+        color: rgba(0, 20, 137, 0.82);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        border-bottom: 1px solid rgba(0, 20, 137, 0.28);
+        padding-bottom: 2px;
+        transition: color 0.25s, border-color 0.25s;
+    }
+
+    .user-login-button:hover {
+        color: #001489;
+        border-color: rgba(0, 20, 137, 0.55);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if form.non_field_errors %}
+<div class="messages">
+    <div class="message error">Kullanıcı adı veya şifre hatalı.</div>
+</div>
+{% endif %}
+<div class="login-wrapper">
+    <h1 class="login-page-title">Araç Takip Yönetim Sistemi</h1>
+    <div style="max-width: 400px; margin: 4rem auto;">
+        <div class="card login-panel">
+            <div class="logo-container" style="margin-bottom: 1.5rem; justify-content: center;">
+                <img src="{% static 'enlogo2.png' %}" alt="Ensmart Logo" style="height: 38px; width: auto; display: block;">
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Kullanıcı Adı</label>
+                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Şifre</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Giriş Yap</button>
+                <div style="text-align: center;">
+                    <a href="{% url 'login' %}" class="user-login-button">Kullanıcı Girişi</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

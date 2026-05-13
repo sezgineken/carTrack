@@ -1,0 +1,398 @@
+:root {
+    --admin-bg: #edf1fa;
+    --admin-surface: #ffffff;
+    --admin-surface-soft: #f3f6ff;
+    --admin-text: #0f1f45;
+    --admin-muted: #536487;
+    --admin-primary: #001489;
+    --admin-primary-soft: rgba(0, 20, 137, 0.1);
+    --admin-border: #d3def2;
+    --admin-success: #1f8f4d;
+    --admin-shadow: 0 8px 24px rgba(7, 20, 66, 0.08);
+}
+
+body {
+    background: radial-gradient(circle at top right, #eef2ff, #f7f9ff 40%, #f4f6fb);
+    color: var(--admin-text);
+}
+
+#header {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 38%),
+        linear-gradient(110deg, #08184f 0%, #0b2370 45%, #15358f 100%);
+    color: #fff;
+    border-bottom: 0;
+    box-shadow: 0 6px 20px rgba(4, 15, 56, 0.42);
+    position: relative;
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+}
+
+#header a:link,
+#header a:visited {
+    color: #fff;
+}
+
+#branding {
+    width: auto;
+    position: static !important;
+    min-height: 40px;
+    float: none !important;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+}
+
+#branding .admin-branding {
+    width: auto;
+    height: 40px;
+    position: static !important;
+    display: flex;
+    align-items: center;
+}
+
+.admin-branding {
+    display: block;
+}
+
+.admin-brand-logo {
+    position: static;
+    transform: none;
+    height: 20px;
+    width: auto;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+#header #site-name {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 3;
+    pointer-events: none;
+    width: max-content;
+}
+
+#site-name a {
+    font-weight: 700;
+    letter-spacing: 0.15px;
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    font-size: 1.15rem;
+    pointer-events: auto;
+}
+
+#user-tools {
+    font-size: 0.82rem;
+    font-weight: 600;
+    position: static;
+    margin-left: auto;
+    float: none !important;
+    top: 50%;
+    transform: none;
+    z-index: 2;
+    white-space: nowrap;
+}
+
+#user-tools a.admin-user-link {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+}
+
+#user-tools a.admin-user-link:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.72);
+}
+
+#content {
+    margin-top: 16px;
+}
+
+#content-main,
+.module,
+.inline-group {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    box-shadow: var(--admin-shadow);
+}
+
+#content-main {
+    padding: 14px 14px 8px 14px;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: linear-gradient(180deg, #eef3ff 0%, #e3ebff 100%);
+    color: #13318d;
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0.2px;
+}
+
+div.breadcrumbs {
+    background: var(--admin-surface);
+    color: var(--admin-muted);
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    margin: 14px 0 12px 0;
+}
+
+div.breadcrumbs a {
+    color: var(--admin-primary);
+    font-weight: 600;
+}
+
+#changelist-filter {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    box-shadow: var(--admin-shadow);
+}
+
+#changelist-filter h2 {
+    background: linear-gradient(180deg, #f3f7ff 0%, #eaf1ff 100%);
+    color: #11309f;
+    border-bottom: 1px solid var(--admin-border);
+    font-size: 0;
+}
+
+#changelist-filter h2::after {
+    content: "Filtre";
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#changelist-filter ul {
+    margin: 0;
+    padding: 8px 8px 10px 8px;
+}
+
+#changelist-filter li {
+    margin: 0 0 6px 0;
+}
+
+#changelist-filter li a {
+    display: block;
+    padding: 7px 9px;
+    border-radius: 8px;
+    color: #11309f;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+#changelist-filter li a:hover {
+    background: #eef4ff;
+    text-decoration: none;
+}
+
+#changelist-filter li.selected a {
+    color: var(--admin-primary);
+    font-weight: 700;
+    background: #e5eeff;
+}
+
+#changelist table thead th {
+    background: #e4ebfa;
+    color: #1c3a93;
+    border-bottom: 1px solid var(--admin-border);
+    font-weight: 700;
+}
+
+#changelist table tbody tr:nth-child(2n) {
+    background: #fbfcff;
+}
+
+#changelist table tbody tr:hover {
+    background: #eef4ff;
+}
+
+.model-home-inline th a {
+    font-weight: 700;
+}
+
+.admin-mini-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+.admin-mini-action.addlink,
+.admin-mini-action.changelink,
+.admin-mini-action.viewlink {
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Hide Vehicles app title in sidebar/dashboard blocks */
+.app-vehicles caption,
+.app-vehicles .section,
+body.dashboard .app-vehicles > h2 {
+    display: none;
+}
+
+a:link,
+a:visited {
+    color: var(--admin-primary);
+}
+
+input,
+select,
+textarea,
+.vTextField {
+    border: 1px solid #c9d4ee !important;
+    border-radius: 10px !important;
+    background: #fff;
+    color: var(--admin-text);
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.vTextField:focus {
+    border-color: #6a83e6 !important;
+    box-shadow: 0 0 0 3px rgba(0, 20, 137, 0.14) !important;
+    outline: none !important;
+}
+
+.submit-row {
+    background: var(--admin-surface-soft);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+}
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    border-radius: 10px;
+    border: 1px solid #1b35ad;
+    background: linear-gradient(180deg, #1a31a7 0%, #001489 100%);
+    color: #fff !important;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 5px 14px rgba(0, 20, 137, 0.25);
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    filter: brightness(1.06);
+}
+
+/* Keep action/search buttons visible in changelist pages */
+#changelist-search input[type="submit"],
+#changelist .actions button,
+#changelist .actions input[type="submit"] {
+    background: linear-gradient(180deg, #1a31a7 0%, #001489 100%) !important;
+    border: 1px solid #1b35ad !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+}
+
+.submit-row .deletelink {
+    background: linear-gradient(180deg, #d14b4b 0%, #ba2f2f 100%);
+    border: 1px solid #a92626;
+}
+
+.selector .selector-filter {
+    border-radius: 10px;
+}
+
+ul.messagelist li {
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+
+ul.messagelist li.success {
+    border-color: #bee8cf;
+    background: #effcf4;
+}
+
+ul.messagelist li.warning {
+    border-color: #f8ddaa;
+    background: #fff6e4;
+}
+
+ul.messagelist li.error {
+    border-color: #f3b9b9;
+    background: #fff0f0;
+}
+
+@media (max-width: 1024px) {
+    #header {
+        min-height: 62px;
+        padding: 0 10px;
+    }
+
+    #branding {
+        justify-self: start;
+        min-height: 36px;
+    }
+
+    #user-tools {
+        position: static;
+        transform: none;
+        margin-left: auto;
+        padding-left: 10px;
+    }
+
+    #user-tools a.admin-user-link {
+        margin-left: 6px;
+        padding: 4px 8px;
+    }
+
+    #content-main {
+        padding: 10px 10px 6px 10px;
+    }
+
+    .admin-brand-logo {
+        height: 18px;
+        transform: none;
+    }
+}
+
+@media (max-width: 820px) {
+    #header #site-name {
+        position: static;
+        transform: none;
+        margin-left: 10px;
+        text-align: left;
+        width: auto;
+        pointer-events: auto;
+    }
+
+    #site-name a {
+        font-size: 0.98rem;
+    }
+}

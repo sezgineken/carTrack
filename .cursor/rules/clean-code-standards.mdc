@@ -1,0 +1,13 @@
+---
+description: Clean code standards for changes
+alwaysApply: true
+---
+
+# Clean code standards
+
+- Keep implementations minimal; remove dead code and unreachable branches you touch.
+- No unused imports/variables; run/resolve lints for edited files.
+- Keep functions/components small and purpose-driven (SRP).
+- Prefer explicit, readable naming over cleverness.
+- Do not introduce secrets into the repo (.env, credentials).
+- When asked to add temporary test code/files, remove them after verification.
