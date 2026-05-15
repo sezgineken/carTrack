@@ -39,7 +39,9 @@ db.sqlite3-journal
 .env.*
 !.env.example
 
-# IDE
+# IDE / editor tooling (local only)
+.cursor/
+rules.mdc
 .vscode/
 .idea/
 *.swp
